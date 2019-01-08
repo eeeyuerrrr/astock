@@ -1,2 +1,6 @@
 /venv/
 /.idea/
+/stock_analyze/migrations/
+*.sqlite3
+*.sqlite
+*.pyc
