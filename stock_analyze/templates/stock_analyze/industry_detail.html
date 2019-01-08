@@ -1,0 +1,85 @@
+{% extends 'stock_analyze/base.html' %}
+
+{% block title %}行业板块{% endblock %}
+
+{% block content %}
+    {# 标题 #}
+    <div class="row">
+        <div class="col-4">
+            <h3 id="h-title"></h3>
+        </div>
+    </div>
+
+    {#  今天上涨和下跌家数  #}
+    <div class="row">
+        <div id="div-up-down-count" class="col-8">
+            <p>上涨家数：<span id="span-up-count"></span></p>
+            <p>下跌家数：<span id="span-down-count"></span></p>
+            <p>换手率：<span id="span-exchange"></span></p>
+        </div>
+        <div class="col-8">
+            <a href="{% url 'stock_analyze:industry_stocks_corr_analyzation' id %}">
+                该行业个股涨跌相关性 >>
+            </a>
+        </div>
+    </div>
+
+
+    {#    该行业板块的股票列表 #}
+    <div class="row">
+        <div id="div-stock-list" class="col-12">
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        "use strict";
+
+        let get_industry_detail = function () {
+            $.ajax({
+                url: "{% url 'stock_analyze:api-industry-detail' id %}",
+                type: "GET",
+                dataType: "json",
+
+            }).done(function (json) {
+                let industry = json;
+                $('title').html(industry.name);
+                $('#h-title').text(industry.name);
+
+                {# stock list #}
+                let ul = $("<ul></ul>").addClass("list-group");
+                $.each(industry.stocks, function (i, v) {
+                    let a = $('<a></a>').attr('href', v.detail_page_url).text(v.name);
+                    let li = $('<li></li>').addClass("list-group-item").append(a);
+                    ul.append(li);
+                });
+                $('#div-stock-list').append(ul);
+            }).fail(function (xhr, status, errorThrown) {
+            }).always(function (xhr, status) {
+            });
+        };
+
+        let get_stocks_updown_count = function(){
+            $.ajax({
+                url: "{% url 'stock_analyze:api-stocks-updown' id %}",
+                type: "GET",
+                dataType: "json",
+            }).done(function (json) {
+                $("#span-up-count").text(json.up);
+                $("#span-down-count").text(json.down);
+                $('#span-exchange').text(json.exchange);
+            }).fail(function (xhr, status, errorThrown) {
+            }).always(function (xhr, status) {
+            });
+        };
+
+        $(function () {
+            get_industry_detail();
+            get_stocks_updown_count();
+        });
+    </script>
+
+{% endblock %}

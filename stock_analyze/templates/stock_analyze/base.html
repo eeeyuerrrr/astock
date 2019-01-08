@@ -1,0 +1,96 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    {#    <!-- 新 Bootstrap4 核心 CSS 文件 -->#}
+    <link rel="stylesheet" type="text/css" href="{% static 'stock_analyze/css/bootstrap.css' %}">
+    {#    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/css/bootstrap.min.css">#}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="股票，数据，新闻，门户">
+
+
+    {% block style %}
+        <style>
+            .bd-placeholder-img {
+                font-size: 1.125rem;
+                text-anchor: middle;
+            }
+
+            @media (min-width: 768px) {
+                .bd-placeholder-img-lg {
+                    font-size: 3.5rem;
+                }
+            }
+
+            main {
+                padding-top: 6rem;
+            }
+        </style>
+    {% endblock %}
+
+
+    <title>{% block title %}A stock{% endblock %}</title>
+</head>
+<body class="bg-secondary">
+
+{% block sidebar %}
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+
+        <h4 class="navbar-brand font-weight-bold" style="text-shadow: black 10px 6px 6px;">
+            扬基点股
+        </h4>
+
+        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse"
+                data-target="#navbarsExampleDefault"
+                aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="navbar-collapse collapse" id="navbarsExampleDefault" style="">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">首页 <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">数据</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">新闻</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">门户</a>
+                </li>
+            </ul>
+
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="请输入要搜索的内容" aria-label="Search">
+                <button class="btn btn-secondary my-2 my-sm-0" type="submit"><span
+                        class="glyphicon glyphicon-search"></span>搜索
+                </button>
+            </form>
+        </div>
+    </nav>
+{% endblock %}
+
+<main role="main" >
+    {% block content %}
+
+    {% endblock %}
+</main>
+
+
+<!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
+{#<script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>#}
+<script src="{% static 'stock_analyze/js/jquery.js' %}"></script>
+<!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
+{#<script src="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>#}
+<script src="{% static 'stock_analyze/js/bootstrap.js' %}"></script>
+
+
+{% block script %}{% endblock %}
+
+</body>
+</html>

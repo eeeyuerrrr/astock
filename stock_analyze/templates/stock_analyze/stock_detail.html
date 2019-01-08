@@ -1,0 +1,113 @@
+{% extends 'stock_analyze/base.html' %}
+
+{% block content %}
+    {# 名称，股票代码，价格，涨跌幅，涨跌百分比#}
+    <div class="row">
+        <div class="col-2">
+            <h4 id="h-stock-name">--</h4>
+            <h6 id="h-stock-code">--</h6>
+        </div>
+        <div class="col-2">
+            <p id="p-stock-price"></p>
+        </div>
+        <div class="col-2">
+            <p id="p-stock-pc-change"></p>
+        </div>
+        <div class="col-2">
+            <p id="p-stock-pc-change-pct"></p>
+        </div>
+        <div class="col-2">
+            <p id="p-pc-update-time"></p>
+        </div>
+    </div>
+
+    {#    最近90天，30天，7天的平均价格，成交量，价量相关性 #}
+    <div class="row">
+        <div class="col-12">
+            <h5>最近该个股的平均价格，成交量，价量相关性</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div id="div-pv-analyzation" class="col-12"></div>
+    </div>
+
+    {#    同行业内涨跌相关性的个股 #}
+    <div class="row">
+        <div class="col-12">
+            <h5><a id="a-industry"></a>同行业内涨跌相关的个股</h5>
+        </div>
+    </div>
+    <div class="row">
+        <div id="div-corr-with-other-stocks" class="col-12"></div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        "use strict";
+
+        let get_stock_info = function(){
+            $.ajax({
+                url: "{% url 'stock_analyze:api-stock-detail' id %}",
+                type: "GET",
+                dataType: "json",
+            }).done(function (json) {
+                {# basic info #}
+                let stock = json;
+                $('title').html(stock.name);
+                $('#h-stock-name').text(stock.name);
+                $('#h-stock-code').text(stock.code);
+                let industries = stock.industry_set;
+                if(industries && industries.length > 0){
+                    let industry = industries[0];
+                    $('#a-industry').text(industry.name).attr('href', industry.detail_page_url);
+                }
+
+                {# current price info #}
+                let cur_price = stock.cur_price;
+                let sign = parseFloat(cur_price.pc_change_pct) > 0 ? "+" : "-";
+                let pc_change_pct = sign + cur_price.pc_change_pct + "%";
+                $('#p-stock-price').text(cur_price.pc);
+                $('#p-stock-pc-change').text(cur_price.pc_change);
+                $('#p-stock-pc-change-pct').text(pc_change_pct);
+                $('#p-pc-update-time').text(cur_price.update_time);
+
+            }).fail(function () {
+            }).always(function () {
+            });
+        };
+
+        let get_pv_analyzation = function () {
+            $.ajax({
+                url: "{% url 'stock_analyze:stock_pv_analyzation' id %}",
+                type: "GET",
+                dataType: "html",
+            }).done(function (html) {
+                $('#div-pv-analyzation').html(html)
+            }).fail(function () {
+            }).always(function () {
+            });
+        };
+
+        let get_corr_with_other_stocks = function () {
+            $.ajax({
+                url: "{% url 'stock_analyze:stocks_corr_analyzation' id %}",
+                type: "GET",
+                dataType: "html",
+            }).done(function (html) {
+                $('#div-corr-with-other-stocks').html(html);
+            }).fail(function () {
+            }).always(function () {
+            });
+        };
+
+
+        $(function () {
+            get_stock_info();
+            get_pv_analyzation();
+            get_corr_with_other_stocks();
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'stock_analyze/base.html' %}
+
+{% block style %}
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        main {
+            padding-top: 6rem;
+        }
+    </style>
+{% endblock %}
+
+{% block title %}行业板块{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid bg-secondary">
+        <div id="div-industry" class="row">
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        "use strict";
+
+        let get_industries = function () {
+            $.ajax({
+                url: "{% url 'stock_analyze:api-industry-list' %}",
+                type: "GET",
+                dataType: "json",
+            }).then(function (industries) {
+                $.ajax({
+                    url: "{% url 'stock_analyze:api-all-stocks-updown' %}",
+                    type: "GET",
+                    dataType: "json",
+                }).done(function (updown) {
+                    parse_result(industries, updown);
+                })
+            }).fail(function (xhr, status, errorThrown) {
+            }).always(function (xhr, status) {
+            });
+        };
+
+        let add_table = function (industries, updown) {
+            let table = $("<table></table>")
+                .addClass('table')
+                .addClass('table-striped')
+                .addClass('table-dark');
+            let tr_head = $("<tr></tr>")
+                .append("<th scope='col'>行业</th>")
+                .append("<th scope='col'>总市值</th>")
+                .append("<th scope='col'>上涨家数</th>")
+                .append("<th scope='col'>下跌家数</th>")
+                .append("<th scope='col'>换手率</th>");
+            let thead = $("<thead></thead>").append(tr_head);
+            let tbody = $("<tbody></tbody>");
+            $.each(industries, function (i, v) {
+                let u = updown[v.name];
+                let a = $("<a></a>")
+                    .addClass("text-info")
+                    .attr("href", v.detail_page_url)
+                    .text(v.name);
+                let tr = $("<tr></tr>")
+                    .append($("<td></td>").append(a))
+                    .append($("<td></td>").text(trans_value(u.total_value)))
+                    .append($("<td></td>").addClass('text-danger').text(u.up))
+                    .append($("<td></td>").addClass('text-success').text(u.down))
+                    .append($("<td></td>").text(trans_percent(u.exchange)));
+                tbody.append(tr);
+            });
+            table.append(thead);
+            table.append(tbody);
+
+            let div_col = $('<div></div>').addClass('col-lg-6');
+            div_col.append(table);
+
+            $('#div-industry').append(div_col)
+        };
+
+        let parse_result = function (detail, updown) {
+            let industries = detail.results;
+
+            if (industries && industries.length > 30) {
+                let indus1 =  industries.slice(0, parseInt(industries.length / 2)) ;
+                let indus2 =  industries.slice(parseInt(industries.length / 2)) ;
+                add_table(indus1, updown);
+                add_table(indus2, updown);
+            } else {
+                add_table(industries || [], updown);
+            }
+
+
+        };
+
+        let trans_percent = function (x) {
+            return parseFloat(x).toFixed(2) + '%'
+        };
+
+        let trans_value = function (value) {
+            let t = parseFloat(value);
+            if (value > 1000000000000) {
+                t = (value / 1000000000000).toFixed(1) + '万亿';
+            } else if (value > 100000000) {
+                t = (value / 100000000).toFixed(1) + '亿';
+            } else if (value > 10000) {
+                t = (value / 10000).toFixed(1) + '万';
+            } else {
+                t = value;
+            }
+            return t;
+        };
+
+        $(function () {
+            get_industries();
+        });
+    </script>
+{% endblock %}
