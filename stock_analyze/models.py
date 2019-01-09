@@ -38,7 +38,7 @@ class Stock(models.Model):
     def get_belong_industries(self):
         return self.industry_set.all()
 
-    def cur_price(self, enable_cache=False):
+    def cur_price(self, enable_cache=True):
         pc, pc_change, pc_change_pct, time = sd.cur_price_info(self.code, self.market_code,
                                                                enable_cache=enable_cache)
         return {'pc':pc, 'pc_change':pc_change, 'pc_change_pct':pc_change_pct, 'update_time':time}

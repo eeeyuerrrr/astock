@@ -2,17 +2,6 @@
 
 {% block style %}
     <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-
         main {
             padding-top: 6rem;
         }
@@ -23,7 +12,7 @@
 
 {% block content %}
 
-    <div class="container-fluid bg-secondary">
+    <div class="container-fluid">
         <div id="div-industry" class="row">
         </div>
     </div>
@@ -54,9 +43,7 @@
 
         let add_table = function (industries, updown) {
             let table = $("<table></table>")
-                .addClass('table')
-                .addClass('table-striped')
-                .addClass('table-dark');
+                .addClass('table table-striped table-dark');
             let tr_head = $("<tr></tr>")
                 .append("<th scope='col'>行业</th>")
                 .append("<th scope='col'>总市值</th>")
@@ -76,7 +63,7 @@
                     .append($("<td></td>").text(trans_value(u.total_value)))
                     .append($("<td></td>").addClass('text-danger').text(u.up))
                     .append($("<td></td>").addClass('text-success').text(u.down))
-                    .append($("<td></td>").text(trans_percent(u.exchange)));
+                    .append($("<td></td>").text(parseFloat(u.exchange).toFixed(2) + '%'));
                 tbody.append(tr);
             });
             table.append(thead);
@@ -103,9 +90,6 @@
 
         };
 
-        let trans_percent = function (x) {
-            return parseFloat(x).toFixed(2) + '%'
-        };
 
         let trans_value = function (value) {
             let t = parseFloat(value);
@@ -122,6 +106,7 @@
         };
 
         $(function () {
+            active_nav_data();
             get_industries();
         });
     </script>

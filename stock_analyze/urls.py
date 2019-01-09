@@ -22,13 +22,17 @@ urlpatterns = [
          name='api-stock-cur-price-realtime'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~ api html ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    path('industries/stocks_corr_analyzation/<int:industry_id>', views.industry_stocks_corr_analyzation,
+    path('api/industries/stocks_corr_analyzation/<int:industry_id>', views.industry_stocks_corr_analyzation,
          name='industry_stocks_corr_analyzation'),
-    path('stocks/recent_data/<int:stock_id>/<int:days>', views.stock_recent_data,
+    path('api/stocks/recent_data/<int:stock_id>/<int:days>', views.stock_recent_data,
          name='stock_recent_data'),
-    path('stocks/stock_pv_analyzation/<int:stock_id>', views.stock_pv_analyzation,
+    path('api/stocks/stock_pv_analyzation/<int:stock_id>', views.stock_pv_analyzation,
          name='stock_pv_analyzation'),
-    path('stocks/stocks_corr_analyzation/<int:stock_id>', views.stocks_corr_analyzation,
+    path('api/stocks/stocks_corr_analyzation/<int:stock_id>', views.stocks_corr_analyzation,
          name='stocks_corr_analyzation'),
+
+    # ~~~~~~~~~~~~~~~~~~~~~~~~~ api file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    path('api/data_download/stocks/<int:stock_id>/<int:days>', views.download_stock_data, name='api-download-stock-data'),
+
 
 ]

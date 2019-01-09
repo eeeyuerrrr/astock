@@ -8,6 +8,12 @@ class IndustrySerializer4List(serializers.ModelSerializer):
         fields = ('id', 'name', 'code', 'detail_page_url')
 
 
+class StockSerializer4List(serializers.ModelSerializer):
+    class Meta:
+        model = Stock
+        fields = ('id', 'name', 'code', 'market_code', 'detail_page_url')
+
+
 class StockSerializer(serializers.ModelSerializer):
     industry_set = IndustrySerializer4List(many=True)
 
@@ -19,7 +25,7 @@ class StockSerializer(serializers.ModelSerializer):
 
 
 class IndustrySerializer4Detail(serializers.ModelSerializer):
-    stocks = StockSerializer(many=True)
+    stocks = StockSerializer4List(many=True)
 
     class Meta:
         model = Industry

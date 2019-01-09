@@ -18,7 +18,7 @@ def print_err(err):
 
 # pandas datareader cache
 PANDAS_SESSION = requests_cache.CachedSession(cache_name='pandas_datareader_cache',
-                                              backend='sqlite', expire_after=datetime.timedelta(hours=9))
+                                              backend='sqlite', expire_after=datetime.timedelta(days=30))
 # request cache
 requests_cache.install_cache(cache_name='requests_cache',
                              backend='sqlite', expire_after=datetime.timedelta(minutes=30))
@@ -26,6 +26,9 @@ requests_cache.install_cache(cache_name='requests_cache',
 headers = {
     'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/70.0.3538.110 Chrome/70.0.3538.110 Safari/537.36'
 }
+
+# High,Low,Open,Close,Volume,Adj Close
+YAHOO_STOCK_DATA_COLUMNS_CHINESE = ['最高价', '最低价', '开盘价', '收盘价', '成交价', '调整收盘价']
 
 
 def df2html(df):
@@ -43,9 +46,18 @@ def _request(url, enable_cache=True):
 
 def get_stock_data(stock_code, market_code, start, end, ):
     '''get data from yahoo through pandas datareader'''
-    request_code = stock_code + ('.SS' if int(market_code) == 1 else '.SZ')
+    yahoo_marketcode = {'1': '.SS', '2': '.SZ'}
+    request_code = stock_code + yahoo_marketcode[str(market_code)]
     df = web.DataReader(request_code, 'yahoo', start, end, session=PANDAS_SESSION)
     return df[df['Volume'] > 0]  # 过滤掉成交量是0的，某些情况下如节假日没有开盘成交量为0
+
+
+def get_recent_data_generator(stock_code, market_code, days):
+    df = get_recent_data(stock_code, market_code, days)
+    df.columns = YAHOO_STOCK_DATA_COLUMNS_CHINESE
+    yield (','.join([''] + df.columns.tolist() + ['\n'])).encode('utf-8')
+    for i in range(df.shape[0]):
+        yield (','.join([str(df.index[i])] + list(map(str, df.iloc[i].tolist())) + ['\n'])).encode('utf-8')
 
 
 def get_recent_data(stock_code, market_code, days):
@@ -166,4 +178,8 @@ if __name__ == '__main__':
 
     # print(get_pv_analyzation('601128', 1))
 
-    print(industry_stocks_updown_count())
+    # print(industry_stocks_updown_count())
+
+    gen = get_recent_data_generator('601128', '1', 7)
+    for g in gen:
+        print(g)

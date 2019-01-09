@@ -10,23 +10,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="股票，数据，新闻，门户">
+    <style>
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+        }
 
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+    </style>
 
     {% block style %}
         <style>
-            .bd-placeholder-img {
-                font-size: 1.125rem;
-                text-anchor: middle;
-            }
-
-            @media (min-width: 768px) {
-                .bd-placeholder-img-lg {
-                    font-size: 3.5rem;
-                }
-            }
-
             main {
-                padding-top: 6rem;
+                padding-top: 4rem;
             }
         </style>
     {% endblock %}
@@ -49,19 +49,19 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="navbar-collapse collapse" id="navbarsExampleDefault" style="">
+        <div class="navbar-collapse collapse" id="navbarsExampleDefault">
             <ul class="navbar-nav mr-auto">
-                <li class="nav-item active">
+                <li class="nav-item" id="nav-home">
                     <a class="nav-link" href="#">首页 <span class="sr-only">(current)</span></a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="nav-data">
                     <a class="nav-link" href="#">数据</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" id="nav-news">
                     <a class="nav-link" href="#">新闻</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">门户</a>
+                    <a class="nav-link" href="#" id="nav-sites">导航</a>
                 </li>
             </ul>
 
@@ -75,7 +75,7 @@
     </nav>
 {% endblock %}
 
-<main role="main" >
+<main role="main">
     {% block content %}
 
     {% endblock %}
@@ -89,6 +89,20 @@
 {#<script src="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>#}
 <script src="{% static 'stock_analyze/js/bootstrap.js' %}"></script>
 
+<script>
+    let active_nav_home = function () {
+        $('#nav-home').addClass('active');
+    };
+    let active_nav_data = function () {
+        $('#nav-data').addClass('active');
+    };
+    let active_nav_news = function () {
+        $('#nav-news').addClass('active');
+    };
+    let active_nav_sites = function () {
+        $('#nav-sites').addClass('active');
+    };
+</script>
 
 {% block script %}{% endblock %}
 
