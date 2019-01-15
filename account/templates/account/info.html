@@ -1,6 +1,6 @@
 {% extends 'common/base.html' %}
 
-{% block title %}帐号激活{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block style %}
     <style>
@@ -47,16 +47,16 @@
         'use strict';
 
         $(function () {
-            let is_activate_success = false;
+            let success = false;
             {% if  success %}
-                is_activate_success = true;
+                success = true;
             {% endif %}
 
             let info = "{{ info }}";
             $.dialog(info);
-            if (is_activate_success) {
+            if (success) {
                 setTimeout(function () {
-                    window.location.href = "{% url 'account:page_login' %}";
+                    window.location.href = "{{ redirect_url }}";
                 }, 2000);
             }
         });

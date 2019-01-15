@@ -11,10 +11,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+from .log_filters import ManagementFilter
+import json
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -27,7 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0']
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'stock_analyze.apps.StockAnalyzeConfig',
     'rest_framework',
+    'account.apps.AccountConfig',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
 ]
 
 ROOT_URLCONF = 'a_stock.urls'
@@ -71,7 +73,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'a_stock.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
@@ -85,10 +86,9 @@ DATABASES = {
         'PORT': '3306',
         'default-character-set': 'utf8',
         'OPTION': {'init_command': 'SET storage_engine=INNODB;'},
-        'OPTIONS': { 'charset': 'utf8mb4'},
+        'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -129,12 +129,14 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
 
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': (
@@ -142,3 +144,67 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
 }
+
+# cache enable or disable switcher
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#         'LOCATION': 'my_cache_table',
+#         'TIMEOUT': None,
+#     }
+# }
+
+# SESSION_ENGINE =  'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+
+# Age of cookie, in seconds
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+
+verbose = (
+    "[%(asctime)s] %(levelname)s "
+    "[%(name)s:%(lineno)s] %(message)s")
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'remove_migration_sql': {
+            '()': ManagementFilter,
+        }
+    },
+    'handlers': {
+        'console': {
+            'filters': ['remove_migration_sql'],
+            'class': 'logging.StreamHandler'
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': verbose,
+            'datefmt': '%Y-%b-%d %H:%M:%S'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'formatter': 'verbose'
+        },
+    },
+}
+
+
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_PORT = 25
+# EMAIL_USE_SSL = True
+with open('a_stock/account.txt') as f:
+    conf = json.loads(f.read())
+    EMAIL_HOST_USER = conf['EMAIL_HOST_USER']
+    EMAIL_HOST_PASSWORD = conf['EMAIL_HOST_PASSWORD']
+
+
+MY_SERVER_DOMAIN = '0.0.0.0:8000'
+MY_APP_NAME = '扬基数据'
+
+
+

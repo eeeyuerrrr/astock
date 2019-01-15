@@ -5,3 +5,4 @@
 *.sqlite
 *.pyc
 *.cpython-36.pyc
+/a_stock/account.txt

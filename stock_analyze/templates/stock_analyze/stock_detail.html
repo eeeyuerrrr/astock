@@ -1,4 +1,4 @@
-{% extends 'stock_analyze/base.html' %}
+{% extends 'common/base.html' %}
 
 {% block style %}
     <style>
@@ -48,7 +48,7 @@
         {#    同行业内涨跌相关的个股 #}
         <div class="row bg-dark" style="margin-top: 0.2rem;padding-top: 2rem;">
             <div class="col">
-                <h6 class="text-white center"><a id="a-industry" class="text-info"></a>同行业内与该个股涨跌相关的股票</h6>
+                <h6 class="text-white center"><a id="a-industry" class="text-link"></a>同行业内与该个股涨跌相关的股票</h6>
             </div>
         </div>
         <div class="row bg-dark" id="div-corr-with-other-stocks">
@@ -84,8 +84,9 @@
                 let cur_price = stock.cur_price;
                 let pc_change_pct = cur_price.pc_change_pct + "%";
                 let p_pc = $('#p-stock-price').text(cur_price.pc);
-                let p_pc_change = $('#p-stock-pc-change').text(cur_price.pc_change);
-                let p_pc_change_pct = $('#p-stock-pc-change-pct').text(pc_change_pct);
+                let sign = parseFloat(cur_price.pc_change) > 0 ? '+' : '';
+                let p_pc_change = $('#p-stock-pc-change').text( sign+cur_price.pc_change);
+                let p_pc_change_pct = $('#p-stock-pc-change-pct').text(sign+pc_change_pct);
                 $('#p-pc-update-time').text(cur_price.update_time);
 
                 let c = parseFloat(cur_price.pc_change_pct);

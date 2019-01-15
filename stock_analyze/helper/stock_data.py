@@ -18,10 +18,10 @@ def print_err(err):
 
 # pandas datareader cache
 PANDAS_SESSION = requests_cache.CachedSession(cache_name='pandas_datareader_cache',
-                                              backend='sqlite', expire_after=datetime.timedelta(days=30))
+                                              backend='sqlite', expire_after=datetime.timedelta(hours=12))
 # request cache
 requests_cache.install_cache(cache_name='requests_cache',
-                             backend='sqlite', expire_after=datetime.timedelta(minutes=30))
+                             backend='sqlite', expire_after=datetime.timedelta(minutes=10))
 
 headers = {
     'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/70.0.3538.110 Chrome/70.0.3538.110 Safari/537.36'
@@ -180,6 +180,6 @@ if __name__ == '__main__':
 
     # print(industry_stocks_updown_count())
 
-    gen = get_recent_data_generator('601128', '1', 7)
+    gen = get_recent_data_generator('000001', '2', 7)
     for g in gen:
         print(g)

@@ -1,10 +1,8 @@
-{% extends 'stock_analyze/base.html' %}
+
+{% extends 'common/base.html' %}
 
 {% block style %}
     <style>
-        main {
-            padding-top: 6rem;
-        }
     </style>
 {% endblock %}
 
@@ -13,7 +11,32 @@
 {% block content %}
 
     <div class="container-fluid">
-        <div id="div-industry" class="row">
+
+                {# 指数 #}
+        <div class="row bg-dark" style="padding-top: 4.4rem;">
+            <div class="col-2 mx-auto">
+                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '000001' '1' %}">上证指数</a>
+                <p id="p-szzs" class="center">--</p>
+                <p id="pct-szzs" class="center">--</p>
+            </div>
+            <div class="col-2 mx-auto">
+                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '399001' '2' %}">深圳成指</a>
+                <p id="p-szcz" class="center">--</p>
+                <p id="pct-szcz" class="center">--</p>
+            </div>
+            <div class="col-2 mx-auto">
+                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '399005' '2' %}">中小板指</a>
+                <p id="p-zxbz" class="center">--</p>
+                <p id="pct-zxbz" class="center">--</p>
+            </div>
+            <div class="col-2 mx-auto">
+                <a class="text-white" href="{% url 'stock_analyze:page-index-detail' '399006' '2' %}">创业板指</a>
+                <p id="p-cybz" class="text-white center">--</p>
+                <p id="pct-cybz" class="center">--</p>
+            </div>
+        </div>
+
+        <div id="div-industry" class="row"  style="padding-top: 1rem;">
         </div>
     </div>
 
@@ -22,6 +45,45 @@
 {% block script %}
     <script>
         "use strict";
+
+        let get_pc = function(stock_code, market_code, parse){
+            $.ajax({
+                url: "{% url 'stock_analyze:api-stock-cur-price' %}"
+                    +"?stock_code="+stock_code+"&market_code="+market_code,
+                type: "GET",
+                dataType: "json",
+            }).then(function (p) {
+                if(parse){
+                    parse(p);
+                }
+            }).fail(function (xhr, status, errorThrown) {
+            }).always(function (xhr, status) {
+            });
+        };
+
+        let get_index = function(stock_code, market_code, pc_sele, pct_sele){
+            get_pc(stock_code, market_code, function(p){
+                let text_cls = 'text-white';
+                if(p.pc_change_pct>0){
+                    text_cls = 'text-danger';
+                }else if(p.pc_change_pct < 0){
+                    text_cls = 'text-success';
+                }
+                $(pc_sele)
+                    .text(p.pc)
+                    .addClass(text_cls);
+                $(pct_sele)
+                    .text(p.pc_change_pct>0? '+'+p.pc_change_pct : p.pc_change_pct)
+                    .addClass(text_cls);
+            });
+        };
+
+        let get_indexs = function(){
+            get_index('000001', '1', '#p-szzs', '#pct-szzs');
+            get_index('399001','2','#p-szcz', '#pct-szcz');
+            get_index('399005','2','#p-zxbz', '#pct-zxbz');
+            get_index('399006', '2', '#p-cybz', '#pct-cybz');
+        };
 
         let get_industries = function () {
             $.ajax({
@@ -55,7 +117,7 @@
             $.each(industries, function (i, v) {
                 let u = updown[v.name];
                 let a = $("<a></a>")
-                    .addClass("text-info")
+                    .addClass("text-link")
                     .attr("href", v.detail_page_url)
                     .text(v.name);
                 let tr = $("<tr></tr>")
@@ -72,7 +134,7 @@
             let div_col = $('<div></div>').addClass('col-lg-6');
             div_col.append(table);
 
-            $('#div-industry').append(div_col)
+            $('#div-industry').append(div_col);
         };
 
         let parse_result = function (detail, updown) {
@@ -108,6 +170,7 @@
         $(function () {
             active_nav_data();
             get_industries();
+            get_indexs();
         });
     </script>
 {% endblock %}

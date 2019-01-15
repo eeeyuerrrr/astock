@@ -3,8 +3,10 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    {#    <!-- 新 Bootstrap4 核心 CSS 文件 -->#}
-    <link rel="stylesheet" type="text/css" href="{% static 'stock_analyze/css/bootstrap.css' %}">
+    <!-- 新 Bootstrap4 核心 CSS 文件 -->
+    <link rel="stylesheet" type="text/css" href="{% static 'common/css/bootstrap.css' %}">
+    <!-- jquery-confirm -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
     {#    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/css/bootstrap.min.css">#}
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta charset="UTF-8">
@@ -21,6 +23,7 @@
                 font-size: 3.5rem;
             }
         }
+
         .text-link {
             color: #80bdff;
         }
@@ -37,61 +40,86 @@
 
     <title>{% block title %}A stock{% endblock %}</title>
 </head>
-<body class="bg-secondary">
 
-{% block sidebar %}
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+{% block body %}
+    <body class="bg-secondary">
 
-        <h4 class="navbar-brand font-weight-bold" style="text-shadow: black 10px 6px 6px;">
-            扬基点股
-        </h4>
+    {% block sidebar %}
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
 
-        <button class="navbar-toggler collapsed" type="button" data-toggle="collapse"
-                data-target="#navbarsExampleDefault"
-                aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+            <h4 class="navbar-brand font-weight-bold" style="text-shadow: black 10px 6px 6px;">
+                扬基数据
+            </h4>
 
-        <div class="navbar-collapse collapse" id="navbarsExampleDefault">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item" id="nav-home">
-                    <a class="nav-link" href="#">首页 <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item" id="nav-data">
-                    <a class="nav-link" href="#">数据</a>
-                </li>
-                <li class="nav-item" id="nav-news">
-                    <a class="nav-link" href="#">新闻</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" id="nav-sites">导航</a>
-                </li>
-            </ul>
+            <button class="navbar-toggler collapsed" type="button" data-toggle="collapse"
+                    data-target="#navbarsExampleDefault"
+                    aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-            <form id="form-search" class="form-inline my-2 my-lg-0" method="get" action="{% url 'stock_analyze:api-stocks-search' %}">
-                <input class="form-control mr-sm-2" type="text" placeholder="请输入股票名称或代码" aria-label="Search" name="kw">
-                <button class="btn btn-secondary my-2 my-sm-0" type="submit"><span
-                        class="glyphicon glyphicon-search"></span>搜索
-                </button>
-            </form>
-        </div>
-    </nav>
-{% endblock %}
+            <div class="navbar-collapse collapse" id="navbarsExampleDefault">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item" id="nav-home">
+                        <a class="nav-link" href="#">首页 <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item" id="nav-data">
+                        <a class="nav-link" href="#">数据</a>
+                    </li>
+                    <li class="nav-item" id="nav-news">
+                        <a class="nav-link" href="#">新闻</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="nav-sites">导航</a>
+                    </li>
+                </ul>
 
-<main role="main">
-    {% block content %}
+                <form id="form-search" class="form-inline my-2 my-lg-0" method="get"
+                      action="{% url 'stock_analyze:api-stocks-search' %}">
+                    <input class="form-control mr-sm-2" type="text" placeholder="请输入股票名称或代码" aria-label="Search"
+                           name="kw">
+                    <button class="btn btn-secondary my-2 my-sm-0" type="submit"><span
+                            class="glyphicon glyphicon-search"></span>搜索
+                    </button>
+                </form>
 
+                <ul class="navbar-nav" style="padding-left: 2rem; ">
+                    {% if user.is_authenticated %}
+                        <li id="li-account" class="nav-item"><a class="nav-link"
+                                                                href="#">{{ user.userprofile.nickname | truncatechars:8 }}</a>
+                        </li>
+                        <li id="li-logout" class="nav-item"><a class="nav-link" href="#">退出</a></li>
+                    {% else %}
+                        <li id="li-login" class="nav-item"><a class="nav-link"
+                                                              href="{% url 'account:page_login' %}?next={{ request.path }}">登录</a>
+                        </li>
+                        <li id="li-register" class="nav-item"><a class="nav-link"
+                                                                 href="{% url 'account:page_register' %}">注册</a>
+                        </li>
+                    {% endif %}
+                </ul>
+
+            </div>
+        </nav>
     {% endblock %}
-</main>
 
+    <main role="main">
+        {% block content %}
+
+        {% endblock %}
+    </main>
+
+{% endblock %}
 
 <!-- jQuery文件。务必在bootstrap.min.js 之前引入 -->
 {#<script src="https://cdn.staticfile.org/jquery/3.3.1/jquery.min.js"></script>#}
-<script src="{% static 'stock_analyze/js/jquery.js' %}"></script>
+<script src="{% static 'common/js/jquery.js' %}"></script>
 <!-- 最新的 Bootstrap4 核心 JavaScript 文件 -->
 {#<script src="https://cdn.staticfile.org/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>#}
-<script src="{% static 'stock_analyze/js/bootstrap.js' %}"></script>
+<script src="{% static 'common/js/bootstrap.js' %}"></script>
+<!-- jquery-confirm -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
 
+<script src="{% static 'common/js/utils.js' %}"></script>
 <script>
     'use strict';
 
@@ -108,9 +136,9 @@
         $('#nav-sites').addClass('active');
     };
 
-    let parse_search = function(stocks){
+    let parse_search = function (stocks) {
         let ul = $('<ul></ul>').addClass('list-group');
-        $.each(stocks, function(i, v){
+        $.each(stocks, function (i, v) {
             let a = $('<a></a>')
                 .addClass('text-link')
                 .attr('href', v.detail_page_url)
@@ -122,7 +150,7 @@
         });
         let container = $('<div></div>').addClass('container');
         let row = $('<div></div>').addClass('row');
-        let col = $('<div></div>').addClass('col').css('margin-top','0.1rem');
+        let col = $('<div></div>').addClass('col').css('margin-top', '0.1rem');
         col.append(ul);
         row.append(col);
         container.append(row);
@@ -130,7 +158,10 @@
 
     };
 
-    $(function () {
+    let register_search_action = function () {
+        if (!$('#form-search')[0]) {
+            return;
+        }
         $('#form-search').submit(function (e) {
             e.preventDefault();
             let form = $(this);
@@ -146,6 +177,39 @@
             }).always(function (xhr, status) {
             });
         });
+    };
+
+
+    let register_logout_action = function () {
+        if (!$('#li-logout')[0]) {
+            return;
+        }
+        $('#li-logout').on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: "{% url 'account:api_logout' %}",
+                type: "POST",
+            }).done(function (res) {
+                if (res.success) {
+                    $.dialog('退出登录成功');
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 1200);
+                } else if (res.info) {
+                    $.dialog(res.info);
+                }
+            }).fail(function (xhr, status, errorThrown) {
+            }).always(function (xhr, status) {
+            });
+        });
+    };
+
+
+    $(function () {
+        init_ajax_csrf();
+        init_ajax_err_handelr();
+        register_search_action();
+        register_logout_action();
     });
 </script>
 

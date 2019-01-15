@@ -15,8 +15,8 @@ class IndustryStockRelationInline(admin.TabularInline):
 
 class StockAdmin(admin.ModelAdmin):
     inlines = [ IndustryStockRelationInline, ]
-    list_display = ('name', 'code', 'market_name')
-    search_fields = ['name', 'code']
+    list_display = ('name', 'code', 'market_name', 'isindex')
+    search_fields = ('name', 'code')
     list_per_page = 30
 
 
@@ -24,7 +24,7 @@ class IndustryAdmin(admin.ModelAdmin):
     inlines = [ IndustryStockRelationInline, ]
     exclude = ('stocks',)
     list_display = ('name', 'stock_count','order')
-    search_fields = ['name']
+    search_fields = ('name',)
     list_per_page = 30
     ordering = ('order',)
 

@@ -1,10 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'common/base.html' %}
+
+{% block style %}
+    <style>
+        main {
+            padding-top: 4.1rem;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        {# 名称，股票代码，价格，涨跌幅，涨跌百分比#}
+        <div class="row bg-dark" style="padding-top: 1rem;">
+            <div class="col-2 mx-auto">
+                <h4 id="h-stock-name" class="text-white center">--</h4>
+                <h6 id="h-stock-code" class="text-white center">--</h6>
+            </div>
+            <div class="col-1 mx-auto">
+                <p class="text-white center">当前价：</p>
+                <p id="p-stock-price" class="center">--</p>
+            </div>
+            <div class="col-1 mx-auto">
+                <p class="text-white center">涨跌幅：</p>
+                <p id="p-stock-pc-change" class="center">--</p>
+            </div>
+            <div class="col-1 mx-auto">
+                <p class="text-white center">涨跌比：</p>
+                <p id="p-stock-pc-change-pct" class="center">--</p>
+            </div>
+            <div class="col-2 mx-auto">
+                <p class="text-white">更新时间：</p>
+                <p id="p-pc-update-time" class="text-white center">--</p>
+            </div>
+        </div>
+
+        {#    最近90天，30天，7天的平均价格，成交量，价量相关性 #}
+        <div class="row bg-dark" style="margin-top: 0.2rem;padding-top: 2rem;">
+            <div class="col">
+                <h6 class="text-white center">近期该个股的平均价格，成交量，价量相关性</h6>
+            </div>
+        </div>
+        <div class="row bg-dark">
+            <div id="div-pv-analyzation" class="col-md-5"></div>
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        "use strict";
+
+        let get_stock_info = function () {
+            $.ajax({
+                url: "{% url 'stock_analyze:api-stock-detail' id %}",
+                type: "GET",
+                dataType: "json",
+            }).done(function (json) {
+                {# basic info #}
+                let stock = json;
+                $('title').html(stock.name);
+                $('#h-stock-name').text(stock.name);
+                $('#h-stock-code').text(stock.code);
+                let industries = stock.industry_set;
+                if (industries && industries.length > 0) {
+                    let industry = industries[0];
+                    $('#a-industry').text(industry.name).attr('href', industry.detail_page_url);
+                }
+
+                {# current price info #}
+                let cur_price = stock.cur_price;
+                let pc_change_pct = cur_price.pc_change_pct + "%";
+                let p_pc = $('#p-stock-price').text(cur_price.pc);
+                let sign = parseFloat(cur_price.pc_change) > 0 ? '+' : '';
+                let p_pc_change = $('#p-stock-pc-change').text( sign+cur_price.pc_change);
+                let p_pc_change_pct = $('#p-stock-pc-change-pct').text(sign+pc_change_pct);
+                $('#p-pc-update-time').text(cur_price.update_time);
+
+                let c = parseFloat(cur_price.pc_change_pct);
+                if (c > 0) {
+                    p_pc.addClass('text-danger');
+                    p_pc_change.addClass('text-danger');
+                    p_pc_change_pct.addClass('text-danger');
+                } else if (c < 0) {
+                    p_pc.addClass('text-success');
+                    p_pc_change.addClass('text-success');
+                    p_pc_change_pct.addClass('text-success');
+                } else {
+                    p_pc.addClass('text-white');
+                    p_pc_change.addClass('text-white');
+                    p_pc_change_pct.addClass('text-white');
+                }
+
+
+            }).fail(function () {
+            }).always(function () {
+            });
+        };
+
+        let get_pv_analyzation = function () {
+            $.ajax({
+                url: "{% url 'stock_analyze:stock_pv_analyzation' id %}",
+                type: "GET",
+                dataType: "html",
+            }).done(function (html) {
+                let table = $(html)
+                    .addClass('table table-striped table-dark ')
+                    .css({'text-align': 'right'});
+                $('#div-pv-analyzation').append(table);
+            }).fail(function () {
+            }).always(function () {
+            });
+        };
+
+
+
+        let light_up_high_corr = function(trs){
+            for(let i=0; i<trs.length; i++){
+                try{
+                    if( parseFloat(trs.eq(i).find('td').text()) >= 0.8){
+                        trs.eq(i).addClass('text-danger');
+                    }
+                }catch(e){
+                    console.log(e);
+                }
+            }
+        };
+
+        $(function () {
+            active_nav_data();
+            get_stock_info();
+            get_pv_analyzation();
+        });
+
+    </script>
+{% endblock %}

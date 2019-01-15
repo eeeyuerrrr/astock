@@ -1,10 +1,182 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+{% extends 'common/base.html' %}
+
+{% block title %}注册{% endblock %}
+
+{% block style %}
+    <style>
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        #div-from {
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+
+        }
+
+        body {
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .form-signin {
+            width: 100%;
+            max-width: 330px;
+            padding: 15px;
+            margin: auto;
+        }
+
+        .form-signin .checkbox {
+            font-weight: 400;
+        }
+
+        .form-signin .form-control {
+            position: relative;
+            box-sizing: border-box;
+            height: auto;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .form-signin .form-control:focus {
+            z-index: 2;
+        }
+
+        .form-signin input[type="email"] {
+            margin-bottom: -1px;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+
+        .form-signin input[type="password"] {
+            margin-bottom: 10px;
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+        }
+
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <body>
+
+    <div id="div-from" class="text-center">
+        <form id="form-register" class="form-signin" action="{% url 'account:api_register' %}" method="post">
+            {% csrf_token %}
+            <h1 class="h3 mb-3 font-weight-normal">注 册</h1>
+
+            <div class="row">
+                <label for="input-username">帐号</label>
+                <input id="input-username" type="text" name="username" class="form-control" placeholder="用户名(2至10个字符)"
+                       autofocus="">
+            </div>
+            <br/>
+
+            <div class="row">
+                <label for="input-nickname">昵称</label>
+                <input id="input-nickname" type="text" name="nickname" class="form-control" placeholder="昵称"
+                       autofocus="">
+            </div>
+            <br/>
+
+            <div class="row">
+                <label for="input-email">邮箱</label>
+                <input id="input-email" type="text" name="email" class="form-control" placeholder="邮箱" autofocus="">
+
+            </div>
+            <br/>
+
+            <div class="row">
+                <label for="input-password">密码(长度不少于8位，且不能全为数字)</label>
+                <input id="input-password" type="password" name="password" class="form-control" placeholder="密码">
+
+            </div>
+            <br/>
+
+            <div class="row">
+                <label for="input-confirm-password">确认密码</label>
+                <input id="input-confirm-password" type="password" name="confirm_password" class="form-control"
+                       placeholder="再次输入密码以确认">
+            </div>
+            <br/>
+
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <button class="btn btn-lg btn-primary btn-block" type="submit">注册</button>
+        </form>
+
+    </div>
+    <div id="div-alert"></div>
+    </body>
+
+{% endblock %}
+
+
+{% block script %}
+    <script>
+        'use strict';
+
+        $(function () {
+            $('#form-register').submit(function (e) {
+                e.preventDefault();
+                if (!$('#input-username').val()) {
+                    $.dialog('请填写用户名');
+                    return;
+                }
+                if (!$('#input-nickname').val()) {
+                    $.dialog('请填写昵称');
+                    return;
+                }
+                if (!$('#input-email').val()) {
+                    $.dialog('请填写邮箱');
+                    return;
+                }
+                if (!$('#input-password').val()) {
+                    $.dialog('请填写密码');
+                    return;
+                }
+                if (!$('#input-confirm-password').val()) {
+                    $.dialog('请填写确认密码');
+                    return;
+                }
+                if ($('#input-password').val() !== $('#input-confirm-password').val()) {
+                    $.dialog('两次输入的密码不一致，请重新填写');
+                    return;
+                }
+
+                let form = $(this);
+                let url = form.attr('action');
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: form.serialize(),
+                    dataType: "json",
+                }).done(function (res) {
+                    if (res.success && res.redirect_url) {
+                        setTimeout(function () {
+                            window.location.href = res.redirect_url;
+                        }, 4000);
+                    }
+                    if (res.info) {
+                        $.dialog(res.info);
+                    }
+
+                }).fail(function (xhr, status, errorThrown) {
+                }).always(function (xhr, status) {
+                });
+            });
+        });
+    </script>
+{% endblock %}

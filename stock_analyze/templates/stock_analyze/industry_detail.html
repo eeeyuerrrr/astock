@@ -1,4 +1,4 @@
-{% extends 'stock_analyze/base.html' %}
+{% extends 'common/base.html' %}
 
 {% block style %}
     <style>
@@ -26,11 +26,6 @@
                             <p class="text-white">上涨家数：<span id="span-up-count" class="text-danger"></span></p>
                             <p class="text-white">下跌家数：<span id="span-down-count" class="text-success"></span></p>
                             <p class="text-white">换手率：<span id="span-exchange"></span></p>
-                        </div>
-                        <div class="col-8">
-                            <a href="{% url 'stock_analyze:industry_stocks_corr_analyzation' id %}">
-                                该行业个股涨跌相关性 >>
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -84,7 +79,7 @@
                 let ul = $("<ul></ul>").addClass("list-group");
                 $.each(stocks, function (i, v) {
                     let a = $('<a></a>')
-                        .addClass('text-white')
+                        .addClass('text-link')
                         .attr('href', v.detail_page_url)
                         .text(v.name);
                     let li = $('<li></li>')
