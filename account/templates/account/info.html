@@ -1,0 +1,65 @@
+{% extends 'common/base.html' %}
+
+{% block title %}帐号激活{% endblock %}
+
+{% block style %}
+    <style>
+
+        .bd-placeholder-img {
+            font-size: 1.125rem;
+            text-anchor: middle;
+        }
+
+        @media (min-width: 768px) {
+            .bd-placeholder-img-lg {
+                font-size: 3.5rem;
+            }
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: -ms-flexbox;
+            display: flex;
+            -ms-flex-align: center;
+            align-items: center;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            background-color: #f5f5f5;
+        }
+
+    </style>
+{% endblock %}
+
+
+{% block body %}
+
+    <body class="text-center">
+    </body>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        'use strict';
+
+        $(function () {
+            let is_activate_success = false;
+            {% if  success %}
+                is_activate_success = true;
+            {% endif %}
+
+            let info = "{{ info }}";
+            $.dialog(info);
+            if (is_activate_success) {
+                setTimeout(function () {
+                    window.location.href = "{% url 'account:page_login' %}";
+                }, 2000);
+            }
+        });
+
+    </script>
+{% endblock %}

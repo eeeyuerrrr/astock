@@ -21,6 +21,9 @@
                 font-size: 3.5rem;
             }
         }
+        .text-link {
+            color: #80bdff;
+        }
     </style>
 
     {% block style %}
@@ -65,8 +68,8 @@
                 </li>
             </ul>
 
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="text" placeholder="请输入要搜索的内容" aria-label="Search">
+            <form id="form-search" class="form-inline my-2 my-lg-0" method="get" action="{% url 'stock_analyze:api-stocks-search' %}">
+                <input class="form-control mr-sm-2" type="text" placeholder="请输入股票名称或代码" aria-label="Search" name="kw">
                 <button class="btn btn-secondary my-2 my-sm-0" type="submit"><span
                         class="glyphicon glyphicon-search"></span>搜索
                 </button>
@@ -90,6 +93,8 @@
 <script src="{% static 'stock_analyze/js/bootstrap.js' %}"></script>
 
 <script>
+    'use strict';
+
     let active_nav_home = function () {
         $('#nav-home').addClass('active');
     };
@@ -102,6 +107,46 @@
     let active_nav_sites = function () {
         $('#nav-sites').addClass('active');
     };
+
+    let parse_search = function(stocks){
+        let ul = $('<ul></ul>').addClass('list-group');
+        $.each(stocks, function(i, v){
+            let a = $('<a></a>')
+                .addClass('text-link')
+                .attr('href', v.detail_page_url)
+                .text(v.code + ' ' + v.name);
+            let li = $('<li></li>')
+                .addClass('list-group-item bg-dark')
+                .append(a);
+            ul.append(li);
+        });
+        let container = $('<div></div>').addClass('container');
+        let row = $('<div></div>').addClass('row');
+        let col = $('<div></div>').addClass('col').css('margin-top','0.1rem');
+        col.append(ul);
+        row.append(col);
+        container.append(row);
+        $('main').html('').append(container);
+
+    };
+
+    $(function () {
+        $('#form-search').submit(function (e) {
+            e.preventDefault();
+            let form = $(this);
+            let url = form.attr('action');
+            $.ajax({
+                url: url,
+                type: 'GET',
+                data: form.serialize(),
+            }).done(function (stocks) {
+                parse_search(stocks);
+
+            }).fail(function (xhr, status, errorThrown) {
+            }).always(function (xhr, status) {
+            });
+        });
+    });
 </script>
 
 {% block script %}{% endblock %}
