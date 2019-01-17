@@ -45,6 +45,8 @@ urlpatterns = [
          name='stock_pv_analyzation'),
     path('api/stocks/stocks_corr_analyzation/<int:stock_id>', views.stocks_corr_analyzation,
          name='stocks_corr_analyzation'),
+    path('api/stocks/data/<stock_code>/<int:market_code>/<int:days>', views.get_stock_data,
+         name='stock_data'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~ api file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     path('api/data_download/stocks/<int:stock_id>/<int:days>', views.download_stock_data,

@@ -11,24 +11,38 @@ import datetime
 import time
 import traceback
 
-
-def print_err(err):
-    traceback.print_tb(err.__traceback__)
-
+ENABLE_PANDAS_CACHE = True
 
 # pandas datareader cache
 PANDAS_SESSION = requests_cache.CachedSession(cache_name='pandas_datareader_cache',
-                                              backend='sqlite', expire_after=datetime.timedelta(hours=12))
+                                              backend='sqlite', expire_after=datetime.timedelta(hours=2))
+
 # request cache
 requests_cache.install_cache(cache_name='requests_cache',
                              backend='sqlite', expire_after=datetime.timedelta(minutes=10))
 
 headers = {
-    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/70.0.3538.110 Chrome/70.0.3538.110 Safari/537.36'
+    'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 ' \
+                  '(KHTML, like Gecko) Ubuntu Chromium/70.0.3538.110 Chrome/70.0.3538.110 Safari/537.36'
 }
 
-# High,Low,Open,Close,Volume,Adj Close
-YAHOO_STOCK_DATA_COLUMNS_CHINESE = ['最高价', '最低价', '开盘价', '收盘价', '成交价', '调整收盘价']
+COLUMNS_NAME_TRANSLATE = {
+    'High': '最高价',
+    'Low': '最低价',
+    'Open': '开盘价',
+    'Close': '收盘价',
+    'Adj Close': '调整收盘价',
+    'Volume': '成交量',
+    'date': '日期',
+}
+
+
+def translate_column_name(columns):
+    return [COLUMNS_NAME_TRANSLATE[x] for x in columns]
+
+
+def print_err(err):
+    traceback.print_tb(err.__traceback__)
 
 
 def df2html(df):
@@ -44,20 +58,33 @@ def _request(url, enable_cache=True):
     # print('request from cache:', response.from_cache)
 
 
-def get_stock_data(stock_code, market_code, start, end, ):
-    '''get data from yahoo through pandas datareader'''
+def get_stock_request_code(stock_code, market_code):
     yahoo_marketcode = {'1': '.SS', '2': '.SZ'}
     request_code = stock_code + yahoo_marketcode[str(market_code)]
-    df = web.DataReader(request_code, 'yahoo', start, end, session=PANDAS_SESSION)
+    return request_code
+
+
+def get_stock_data(stock_code, market_code, start, end):
+    '''get data from yahoo through pandas datareader'''
+    request_code = get_stock_request_code(stock_code, market_code)
+    print('[+] get data from pandas: {}, {}, {}, {}'.format(request_code, 'yahoo', start, end))
+    if ENABLE_PANDAS_CACHE:
+        df = web.DataReader(request_code, 'yahoo', start, end, session=PANDAS_SESSION)
+    else:
+        df = web.DataReader(request_code, 'yahoo', start, end)
     return df[df['Volume'] > 0]  # 过滤掉成交量是0的，某些情况下如节假日没有开盘成交量为0
 
 
 def get_recent_data_generator(stock_code, market_code, days):
     df = get_recent_data(stock_code, market_code, days)
-    df.columns = YAHOO_STOCK_DATA_COLUMNS_CHINESE
+    df.columns = translate_column_name(df.columns)
     yield (','.join([''] + df.columns.tolist() + ['\n'])).encode('utf-8')
     for i in range(df.shape[0]):
-        yield (','.join([str(df.index[i])] + list(map(str, df.iloc[i].tolist())) + ['\n'])).encode('utf-8')
+        yield (
+            ','.join([str(df.index[i])]
+                     + list(map(str, df.iloc[i].tolist()))
+                     + ['\n'])
+        ).encode('utf-8')
 
 
 def get_recent_data(stock_code, market_code, days):

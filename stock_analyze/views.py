@@ -3,7 +3,7 @@ from django.views.decorators.cache import cache_page
 from a_stock.utils import print_err
 from datetime import datetime
 
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -146,7 +146,7 @@ def stock_recent_data(request, stock_id, days):
     try:
         stock = Stock.get(id=stock_id)
         df = stock.recent_data(days)
-        df.columns = sd.YAHOO_STOCK_DATA_COLUMNS_CHINESE
+        df.columns = sd.translate_column_name(df.columns)
         table_html = sd.df2html(df)
         return Response(table_html)
     except Stock.DoesNotExist:
@@ -231,6 +231,20 @@ def stocks_search(request):
         return Response(serializer.data)
     except KeyError:
         raise ParseError
+    except Exception as e:
+        print_err(e)
+        raise APIException
+
+
+@api_view(('GET',))
+@renderer_classes((StaticHTMLRenderer,))
+def get_stock_data(request, stock_code, market_code, days ):
+    import stock_analyze.helper.stock_data_manager as sdm
+    if days > QUERY_DATA_MAX_DAYS:
+        raise ValidationError
+    try:
+        df = sdm.get_data(stock_code, market_code, days)
+        return Response(sd.df2html(df))
     except Exception as e:
         print_err(e)
         raise APIException
