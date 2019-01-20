@@ -1,6 +1,6 @@
 from django.urls import path
+
 from . import views
-from django.views.decorators.cache import cache_page
 
 app_name = 'stock_analyze'
 
@@ -17,6 +17,7 @@ urlpatterns = [
          name='page-stock-detail'),
     path('page/index_detail/<stock_code>/<market_code>/', views.page_index_detail,
          name='page-index-detail'),
+    path('page/stocks/rzrq/<int:id>', views.page_stock_rzrq, name='page-stock-rzrq'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~ api json ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ex: /stock_analyze/api/industries
@@ -35,6 +36,7 @@ urlpatterns = [
     path('api/stocks/cur_price/', views.stock_cur_price,
          name='api-stock-cur-price'),
     path('api/stocks/search/', views.stocks_search, name='api-stocks-search'),
+    path('api/stocks/beta/<id>', views.stock_beta, name='api-stocks-beta'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~ api html ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     path('api/industries/stocks_corr_analyzation/<int:industry_id>', views.industry_stocks_corr_analyzation,
@@ -45,8 +47,6 @@ urlpatterns = [
          name='stock_pv_analyzation'),
     path('api/stocks/stocks_corr_analyzation/<int:stock_id>', views.stocks_corr_analyzation,
          name='stocks_corr_analyzation'),
-    path('api/stocks/data/<stock_code>/<int:market_code>/<int:days>', views.get_stock_data,
-         name='stock_data'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~ api file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     path('api/data_download/stocks/<int:stock_id>/<int:days>', views.download_stock_data,

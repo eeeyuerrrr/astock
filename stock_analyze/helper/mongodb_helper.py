@@ -6,8 +6,8 @@ import pymongo
 from django.conf import settings
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, BulkWriteError
-from stock_analyze.helper.stock_data import get_stock_request_code
 from a_stock.utils import print_err
+from stock_analyze.helper.utils import get_stock_request_code, log
 
 QUERY_RESULT_BATCH_SIZE = 400
 
@@ -59,33 +59,41 @@ class StockDataCollection:
 
     def insert_dataframe(self, df, exclude_dates=None):
         try:
+            print('[+] inserting dataframe to mangodb: {} items'.format(df.shape[0]))
             ds = []
             for i in range(df.shape[0]):
                 s = df.iloc[i]
-                if (exclude_dates is not None) and (s.name in exclude_dates):
+                if (exclude_dates is not None) and (s.name.date() in exclude_dates):
                     continue
 
                 d = s.to_dict()
                 d['date'] = s.name
                 ds.append(d)
-            self.col.insert_many(ds)
-        except DuplicateKeyError:
-            pass
-        except BulkWriteError:
+
+            if len(ds) > 0:
+                self.col.insert_many(ds)
+
+        except DuplicateKeyError as e:
+            print('[-] DuplicateKeyError: {!r}'.format(e))
+        except BulkWriteError as e:
+            print('[-] BulkWriteError: {!r}'.format(e))
             self.insert_dataframe_onebyone(df)
         except Exception as e:
+            print('[-] Unknow Exception: {!r}'.format(e))
             print_err(e)
 
     def insert_dataframe_onebyone(self, df):
         try:
+            print('[+] inserting dataframe one by one')
             for i in range(df.shape[0]):
                 s = df.iloc[i]
                 d = s.to_dict()
                 d['date'] = s.name
                 self.col.insert_one(d)
-        except DuplicateKeyError:
-            pass
+        except DuplicateKeyError as e:
+            print('[-] DuplicateKeyError: {!r}'.format(e))
         except Exception as e:
+            print('[-] Unknow Exception: {!r}'.format(e))
             print_err(e)
 
     def find(self, **kwargs):
@@ -112,7 +120,7 @@ class StockDataCollection:
             'date': {
                 '$gte': date
             }
-        }).sort([('date', pymongo.DESCENDING)])\
+        }).sort([('date', pymongo.DESCENDING)]) \
             .batch_size(QUERY_RESULT_BATCH_SIZE)
 
     def find_between_date(self, start, end, columns=None):
@@ -164,7 +172,7 @@ if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "a_stock.settings")
     django.setup()
 
-    import stock_analyze.helper.stock_data as sd
+    import stock_analyze.helper.stock_data_manager as sd
 
     df = sd.get_recent_data('000001', 1, 90)
     sc = get_stock_collection(sd.get_stock_request_code('000001', 1))

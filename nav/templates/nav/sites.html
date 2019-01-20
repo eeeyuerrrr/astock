@@ -1,0 +1,112 @@
+{% extends 'common/base.html' %}
+
+{% block title %}首页{% endblock %}
+
+{% block style %}
+    <style>
+        main {
+            padding-top: 4.1rem;
+        }
+
+        .ic {
+            width: 26px;
+            height: 26px;
+            padding: 4px;
+        }
+
+        div.container-fluid {
+            padding-top: 2rem;
+        }
+
+        .site-container {
+            padding: 1rem;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid text-white text-left bg-dark">
+
+        <div class="container-fluid">
+            <div class="row"><h6 class="col-12">数据</h6></div>
+            <div class="row  site-container" id="div-datas"></div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row"><h6 class="col-12">新闻</h6></div>
+            <div class="row site-container" id="div-news"></div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row"><h6 class="col-12">其他</h6></div>
+            <div class="row site-container" id="div-others"></div>
+        </div>
+
+    </div>
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        'use strict';
+
+        let get_sites = function () {
+            $.ajax({
+                url: "{% url 'nav:api-sites' %}",
+                type: "GET",
+                dataType: "json",
+            }).done(function (sites) {
+                parse_sites(sites);
+            }).fail(function () {
+            }).always(function () {
+            });
+        };
+
+        let parse_sites = function (sites) {
+            if (sites && sites.length > 0) {
+                let ca_site_contaners = {
+                    'DATAS': $('#div-datas'),
+                    'NEWS': $('#div-news'),
+                    'OTHERS': $('#div-others'),
+                };
+                $.each(sites, function (i, v) {
+                    try {
+                        let name = v.name;
+                        let url = v.url;
+                        let ic = v.icon;
+                        let ca = v.category;
+
+                        let img = $('<img></img>')
+                            .attr('src', ic)
+                            .addClass('ic');
+                        let a = $('<a></a>')
+                            .attr('href', url)
+                            .attr('target', '_blank')
+                            .text(' ' + name)
+                            .addClass('text-link')
+                            .prepend(img);
+                        let col = $('<div></div>')
+                            .addClass('col-md-2')
+                            .append(a);
+                        ca_site_contaners[ca].append(col)
+
+                    } catch (e) {
+                        console.log(e);
+                    }
+                });
+            }
+        };
+
+        let init_bg = function () {
+            $('body').removeClass('bg-secondary').addClass('bg-dark');
+        };
+
+        $(function () {
+            init_bg();
+            active_nav_sites();
+            get_sites();
+        });
+    </script>
+{% endblock %}

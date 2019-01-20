@@ -38,11 +38,46 @@
         {#    最近90天，30天，7天的平均价格，成交量，价量相关性 #}
         <div class="row bg-dark" style="margin-top: 0.2rem;padding-top: 2rem;">
             <div class="col">
-                <h6 class="text-white center">近期该个股的平均价格，成交量，价量相关性</h6>
+                <h6 class="text-white center">近期该指数的平均价格，成交量</h6>
             </div>
         </div>
         <div class="row bg-dark">
-            <div id="div-pv-analyzation" class="col-md-5"></div>
+            <div id="div-pv-analyzation" class="col-6"></div>
+        </div>
+
+                <!-- 下载历史交易数据 -->
+        <div class="row bg-dark" style="margin-top: 0.2rem; padding-top: 1.6rem; padding-bottom:1.6rem;">
+            <div class="col">
+                <h6 class="text-white center">
+                    <a class="text-link" target="_blank" href="{% url 'stock_analyze:api-download-stock-data' id 365 %}">
+                        {% if user.is_authenticated %}
+                            下载历史交易数据 >>
+                        {% else %}
+                            下载历史交易数据(请先登录) >>
+                        {% endif %}
+                    </a>
+                </h6>
+            </div>
+        </div>
+
+        <!-- 个股融资融券数据-->
+        <div class="row bg-dark" style="margin-top: 0.2rem; padding-top: 1.6rem; padding-bottom:1.6rem;">
+            <div class="col">
+                <h6 class="text-white center">
+                    <a class="text-link" target="_blank" href="{% url 'stock_analyze:page-stock-rzrq' id %}">
+                        融资融券数据 >>
+                    </a>
+                </h6>
+            </div>
+        </div>
+
+        <!-- 个股融资融券数据-->
+        <div class="row bg-dark" style="margin-top: 0.2rem; padding-top: 1.6rem; padding-bottom:1.6rem;">
+            <div class="col">
+                <h6 class="text-white center">
+                    说明：以上数据仅供参考，不构成任何投资建议。
+                </h6>
+            </div>
         </div>
 
     </div>
@@ -113,22 +148,9 @@
                     .css({'text-align': 'right'});
                 $('#div-pv-analyzation').append(table);
             }).fail(function () {
+                $('#div-pv-analyzation').html('<p class="text-white">数据缺失</p>')
             }).always(function () {
             });
-        };
-
-
-
-        let light_up_high_corr = function(trs){
-            for(let i=0; i<trs.length; i++){
-                try{
-                    if( parseFloat(trs.eq(i).find('td').text()) >= 0.8){
-                        trs.eq(i).addClass('text-danger');
-                    }
-                }catch(e){
-                    console.log(e);
-                }
-            }
         };
 
         $(function () {

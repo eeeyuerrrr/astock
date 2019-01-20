@@ -37,9 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'stock_analyze.apps.StockAnalyzeConfig',
     'rest_framework',
+    'stock_analyze.apps.StockAnalyzeConfig',
     'account.apps.AccountConfig',
+    'nav.apps.NavConfig',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +67,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -206,5 +208,15 @@ with open('a_stock/account.txt') as f:
 MY_SERVER_DOMAIN = '0.0.0.0:8000'
 MY_APP_NAME = '扬基数据'
 
+
+MANGODB = {
+    'host': 'localhost',
+    'port': 27017,
+    'db': 'stock_data',
+    'max_pool':200,
+}
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 

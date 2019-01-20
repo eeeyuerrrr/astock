@@ -1,12 +1,14 @@
-import json
-
 from django.db import models
 from django.urls import reverse
 
-import stock_analyze.helper.stock_data as sd
+import stock_analyze.helper.stock_data_analyzer as sda
+import stock_analyze.helper.stock_data_manager as sdm
 
 
 # ~~~~~~~~~~~~~~~~~~~~~ Stock ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+from stock_analyze.exceptions import DataMissingError
+
+
 class Stock(models.Model):
     name = models.CharField(max_length=10, unique=True, null=False)
     code = models.CharField(max_length=10, null=False)
@@ -31,9 +33,10 @@ class Stock(models.Model):
 
     market_name.admin_order_field = 'market_code'
 
+    @staticmethod
     def get(**kwargs):
         stocks = Stock.objects.filter(**kwargs).prefetch_related('industry_set')
-        if ( stocks is not None) and len(stocks)>0 :
+        if (stocks is not None) and len(stocks) > 0:
             return stocks[0]
         else:
             raise Stock.DoesNotExist
@@ -42,19 +45,23 @@ class Stock(models.Model):
         return self.industry_set.all()
 
     def cur_price(self, enable_cache=True):
-        pc, pc_change, pc_change_pct, time = sd.cur_price_info(self.code, self.market_code,
-                                                               enable_cache=enable_cache)
+        pc, pc_change, pc_change_pct, time = sdm.cur_price_info(self.code, self.market_code,
+                                                                enable_cache=enable_cache)
         return {'pc': pc, 'pc_change': pc_change, 'pc_change_pct': pc_change_pct, 'update_time': time}
 
     def recent_data(self, days):
-        return sd.get_recent_data(self.code, self.market_code, days)
+        return sdm.get_recent_data(self.code, self.market_code, days)
 
     def pv_analyzation(self):
-        return sd.get_pv_analyzation(self.code, self.market_code)
+        return sda.pv_analyzation(self.code, self.market_code)
 
     def corr_with_industry_stocks(self, industry):
         compare_stocks = industry.get_stocks()
-        return sd.stocks_corr_analyzation(90, self, *list(compare_stocks))
+        return sda.stocks_corr_analyzation(300, self, *list(compare_stocks))
+
+    def beta(self):
+        index = Stock.objects.get(isindex=True, market_code=self.market_code)
+        return sda.beta(self.code, index.code, self.market_code)
 
 
 # ~~~~~~~~~~~~~~~~~ Industry ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -73,11 +80,12 @@ class Industry(models.Model):
     def detail_page_url(self):
         return reverse('stock_analyze:page-industry-detail', args=[self.id])
 
+    @staticmethod
     def get(**kwargs):
         #  prefetch_related同时查询相关字段放入缓存，减少数据库查询
-        industrys = Industry.objects.filter(**kwargs).prefetch_related('stocks')
-        if (industrys is not None) and (len(industrys)>0):
-            return industrys[0]
+        industries = Industry.objects.filter(**kwargs).prefetch_related('stocks')
+        if (industries is not None) and (len(industries) > 0):
+            return industries[0]
         else:
             raise Industry.DoesNotExist
 
@@ -89,13 +97,13 @@ class Industry(models.Model):
 
     @staticmethod
     def all_industry_stocks_updown():
-        return sd.industry_stocks_updown_count()
+        return sdm.industry_stocks_updown_count()
 
     def cur_industry_stocks_updown(self):
         return Industry.all_industry_stocks_updown()[self.name]
 
     def industry_stocks_corr(self):
         compare_stocks = self.get_stocks()
-        return sd.stocks_corr_analyzation(90, None, *list(compare_stocks))
+        return sda.stocks_corr_analyzation(90, None, *list(compare_stocks))
 
 # ~~~~~~~~~~~~~~~~~ Stock Index ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

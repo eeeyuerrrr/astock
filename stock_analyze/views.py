@@ -6,7 +6,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Q
 from django.http import StreamingHttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.exceptions import APIException, ParseError, NotFound
@@ -14,10 +14,12 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import StaticHTMLRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
 
-import stock_analyze.helper.stock_data as sd
+import stock_analyze.helper.stock_data_manager as sd
+from stock_analyze.exceptions import DataMissingError
 from .models import Industry, Stock
 from .serializers import StockSerializer4Detail, IndustrySerializer4List, IndustrySerializer4Detail, \
     StockSerializer4List
+from stock_analyze.helper.utils import df2html, translate_column_name
 
 QUERY_DATA_MAX_DAYS = 365
 
@@ -39,7 +41,7 @@ class StandardResultsSetPagination(PageNumberPagination):
 @api_view(('GET',))
 @renderer_classes((TemplateHTMLRenderer,))
 def page_index(request):
-    return Response(template_name='stock_analyze/index.html')
+    return Response(template_name='stock_analyze/home.html')
 
 
 @api_view(('GET',))
@@ -65,6 +67,15 @@ def page_stock_detail(request, id):
 def page_index_detail(request, stock_code, market_code):
     index = get_object_or_404(Stock, code=stock_code, market_code=market_code)
     return Response({'id': index.id}, template_name='stock_analyze/index_detail.html')
+
+
+def page_stock_rzrq(request, id):
+    #  融资融券
+    stock = get_object_or_404(Stock, id=id)
+    if stock.isindex:
+        return redirect('http://data.eastmoney.com/rzrq/')
+    else:
+        return redirect('http://data.eastmoney.com/rzrq/stock/{}.html'.format(stock.code))
 
 
 # ~~~~~~~~~~~~~~~~~~~~~~~ api ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -141,13 +152,13 @@ def industry_stocks_updown(request, industry_id):
 @renderer_classes((StaticHTMLRenderer,))
 def stock_recent_data(request, stock_id, days):
     if days > QUERY_DATA_MAX_DAYS:  # 查询不超过一年
-        raise ParseError
+        raise ValidationError
 
     try:
         stock = Stock.get(id=stock_id)
         df = stock.recent_data(days)
-        df.columns = sd.translate_column_name(df.columns)
-        table_html = sd.df2html(df)
+        df.columns = translate_column_name(df.columns)
+        table_html = df2html(df)
         return Response(table_html)
     except Stock.DoesNotExist:
         raise NotFound
@@ -162,7 +173,7 @@ def stock_pv_analyzation(request, stock_id):
     try:
         stock = Stock.objects.get(id=stock_id)
         df = stock.pv_analyzation()
-        table_html = sd.df2html(df)
+        table_html = df2html(df)
         return Response(table_html)
     except ObjectDoesNotExist:
         raise NotFound
@@ -178,7 +189,7 @@ def stocks_corr_analyzation(request, stock_id):
         stock = Stock.get(id=stock_id)
         industry = stock.get_belong_industries()[0]
         df_corr = stock.corr_with_industry_stocks(industry)
-        table_html = sd.df2html(df_corr)
+        table_html = df2html(df_corr)
         return Response(table_html)
     except ObjectDoesNotExist:
         raise NotFound
@@ -193,7 +204,7 @@ def industry_stocks_corr_analyzation(request, industry_id):
     try:
         industry = Industry.get(id=industry_id)
         df_corr = industry.industry_stocks_corr()
-        table_html = sd.df2html(df_corr)
+        table_html = df2html(df_corr)
         return Response(table_html)
     except ObjectDoesNotExist:
         raise NotFound
@@ -203,9 +214,13 @@ def industry_stocks_corr_analyzation(request, industry_id):
 
 
 def download_stock_data(request, stock_id, days):
-    ''' response csv file to download '''
+    # need login
+    if not request.user.is_authenticated:
+        return redirect('account:page_login')
+
+    # response StreamingHttpResponse to download csv file
     if days > QUERY_DATA_MAX_DAYS:
-        raise ParseError
+        raise ValidationError
 
     try:
         s = Stock.objects.get(id=stock_id)
@@ -237,14 +252,15 @@ def stocks_search(request):
 
 
 @api_view(('GET',))
-@renderer_classes((StaticHTMLRenderer,))
-def get_stock_data(request, stock_code, market_code, days ):
-    import stock_analyze.helper.stock_data_manager as sdm
-    if days > QUERY_DATA_MAX_DAYS:
-        raise ValidationError
+def stock_beta(request, id):
     try:
-        df = sdm.get_data(stock_code, market_code, days)
-        return Response(sd.df2html(df))
+        stock = Stock.objects.get(id=id)
+        beta = stock.beta()
+        return Response(dict(result=beta))
+    except ObjectDoesNotExist:
+        return Response(dict(result='数据缺失'))
+    except DataMissingError:
+        return Response(dict(result='数据缺失'))
     except Exception as e:
         print_err(e)
         raise APIException

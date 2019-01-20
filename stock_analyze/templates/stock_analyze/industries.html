@@ -19,21 +19,11 @@
                 <p id="p-szzs" class="center">--</p>
                 <p id="pct-szzs" class="center">--</p>
             </div>
-            <div class="col-2 mx-auto">
-                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '399001' '2' %}">深圳成指</a>
-                <p id="p-szcz" class="center">--</p>
-                <p id="pct-szcz" class="center">--</p>
-            </div>
-            <div class="col-2 mx-auto">
-                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '399005' '2' %}">中小板指</a>
-                <p id="p-zxbz" class="center">--</p>
-                <p id="pct-zxbz" class="center">--</p>
-            </div>
-            <div class="col-2 mx-auto">
-                <a class="text-white" href="{% url 'stock_analyze:page-index-detail' '399006' '2' %}">创业板指</a>
-                <p id="p-cybz" class="text-white center">--</p>
-                <p id="pct-cybz" class="center">--</p>
-            </div>
+{#            <div class="col-2 mx-auto">#}
+{#                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '399001' '2' %}">深圳成指</a>#}
+{#                <p id="p-szcz" class="center">--</p>#}
+{#                <p id="pct-szcz" class="center">--</p>#}
+{#            </div>#}
         </div>
 
         <div id="div-industry" class="row"  style="padding-top: 1rem;">
@@ -80,9 +70,7 @@
 
         let get_indexs = function(){
             get_index('000001', '1', '#p-szzs', '#pct-szzs');
-            get_index('399001','2','#p-szcz', '#pct-szcz');
-            get_index('399005','2','#p-zxbz', '#pct-zxbz');
-            get_index('399006', '2', '#p-cybz', '#pct-cybz');
+            {#get_index('399001','2','#p-szcz', '#pct-szcz');#}
         };
 
         let get_industries = function () {
@@ -115,18 +103,22 @@
             let thead = $("<thead></thead>").append(tr_head);
             let tbody = $("<tbody></tbody>");
             $.each(industries, function (i, v) {
-                let u = updown[v.name];
-                let a = $("<a></a>")
-                    .addClass("text-link")
-                    .attr("href", v.detail_page_url)
-                    .text(v.name);
-                let tr = $("<tr></tr>")
-                    .append($("<td></td>").append(a))
-                    .append($("<td></td>").text(trans_value(u.total_value)))
-                    .append($("<td></td>").addClass('text-danger').text(u.up))
-                    .append($("<td></td>").addClass('text-success').text(u.down))
-                    .append($("<td></td>").text(parseFloat(u.exchange).toFixed(2) + '%'));
-                tbody.append(tr);
+                try{
+                    let u = updown[v.name];
+                    let a = $("<a></a>")
+                        .addClass("text-link")
+                        .attr("href", v.detail_page_url)
+                        .text(v.name);
+                    let tr = $("<tr></tr>")
+                        .append($("<td></td>").append(a))
+                        .append($("<td></td>").text(trans_value(u.total_value)))
+                        .append($("<td></td>").addClass('text-danger').text(u.up))
+                        .append($("<td></td>").addClass('text-success').text(u.down))
+                        .append($("<td></td>").text(parseFloat(u.exchange).toFixed(2) + '%'));
+                    tbody.append(tr);
+                }catch(e){
+                    console.log(e);
+                }
             });
             table.append(thead);
             table.append(tbody);
@@ -148,8 +140,6 @@
             } else {
                 add_table(industries || [], updown);
             }
-
-
         };
 
 

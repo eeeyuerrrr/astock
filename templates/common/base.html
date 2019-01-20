@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="股票，数据，新闻，门户">
+    <meta name="description" content="股票，数据，门户">
     <style>
         .bd-placeholder-img {
             font-size: 1.125rem;
@@ -59,17 +59,14 @@
 
             <div class="navbar-collapse collapse" id="navbarsExampleDefault">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item" id="nav-home">
+                    <!-- <li class="nav-item" id="nav-home">
                         <a class="nav-link" href="#">首页 <span class="sr-only">(current)</span></a>
-                    </li>
+                    </li> -->
                     <li class="nav-item" id="nav-data">
-                        <a class="nav-link" href="#">数据</a>
-                    </li>
-                    <li class="nav-item" id="nav-news">
-                        <a class="nav-link" href="#">新闻</a>
+                        <a class="nav-link" href="{% url 'home' %}">数据</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#" id="nav-sites">导航</a>
+                        <a class="nav-link" href="{% url 'nav:page-sites' %}" id="nav-sites">导航</a>
                     </li>
                 </ul>
 
