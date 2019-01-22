@@ -144,10 +144,11 @@
                     url: url,
                     type: 'POST',
                     data: form.serialize(),
+                    dataType: "json",
                 }).done(function (res) {
                     if (res.success) {
                         setTimeout(function () {
-                            window.location.href = res.redirect_url;
+                            window.location.assign(res.redirect_url);
                         }, 1200);
                     }
                     if (res.info) {

@@ -1,28 +1,34 @@
 'use strict';
 
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
 let init_ajax_csrf = function () {
     $.ajaxSetup({
-        headers: {"X-CSRFToken": getCookie("csrftoken")}
+        beforeSend: function (xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
+            }
+        }
     });
 };
 
 let init_ajax_err_handelr = function () {
     $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
-        try{
-            alert_ajax_error_detail(jqxhr);
-        }catch(e){
+        try {
+            if (jqxhr && jqxhr.responseText) {
+                let err = $.parseJSON(jqxhr.responseText);
+                if (err.detail) {
+                    $.dialog(err.detail);
+                }
+            }
+        } catch (e) {
         }
     });
 }
 
-let alert_ajax_error_detail = function (xhr) {
-    if (xhr && xhr.responseText && xhr.status == 400) {
-        let err = $.parseJSON(xhr.responseText);
-        if (err.detail) {
-            $.dialog(err.detail);
-        }
-    }
-};
 
 let getCookie = function (c_name) {
     if (document.cookie.length > 0) {

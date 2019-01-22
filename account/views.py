@@ -1,5 +1,3 @@
-import datetime
-
 from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -11,11 +9,10 @@ from rest_framework.decorators import api_view, renderer_classes
 from rest_framework.exceptions import ValidationError, NotFound, APIException
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from a_stock.utils import gen_user_key, send_html_mail, print_err, validate_mail, gen_user_key_expires, \
     validate_password
-from account.exceptions import OperateError
+from a_stock.exceptions import OperateError
 from .models import UserProfile
 from .serializers import UserProfileSerializer, AccountOperateSerializer, AccountOperate
 

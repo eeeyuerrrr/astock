@@ -1,11 +1,12 @@
-{% extends 'common/base.html' %}
 
+{% extends 'common/base.html' %}
+{% load static %}
 {% block title %}首页{% endblock %}
 
 {% block style %}
     <style>
         main {
-            padding-top: 4.1rem;
+            padding-top: 2.4rem;
         }
 
         .ic {
@@ -28,6 +29,25 @@
 {% block content %}
 
     <div class="container-fluid text-white text-left bg-dark">
+
+        <div class="container-fluid" style="padding-top: 0rem;">
+            <div class="row"><h6 class="col-12">自定义</h6></div>
+            <div class="row site-container" id="div-personal"></div>
+            <div class="row" style="margin-left: 1rem">
+                <form id="form-add-user-site" action="{% url 'nav:api-add-user-site' %}" method="post">
+                    {% csrf_token %}
+                    <div class="input-group input-group-sm mb-3">
+                        <input id="input-site-name" name="name" type="text"  class="form-control" placeholder="名称如:百度" >
+                        <input id="input-site-url" name="url" type="text" class="form-control" placeholder="网址如:http://www.baidu.com">
+                        <div class="input-group-append">
+                            <button id="btn-add-site" class="btn btn-primary" type="submit">
+                                添加
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <div class="container-fluid">
             <div class="row"><h6 class="col-12">数据</h6></div>
@@ -70,21 +90,24 @@
                     'DATAS': $('#div-datas'),
                     'NEWS': $('#div-news'),
                     'OTHERS': $('#div-others'),
+                    'PERSONAL': $('#div-personal'),
                 };
                 $.each(sites, function (i, v) {
                     try {
                         let name = v.name;
                         let url = v.url;
-                        let ic = v.icon;
+                        let ic = v.icon || "{% static 'common/img/default_favico.ico' %}";
                         let ca = v.category;
 
                         let img = $('<img></img>')
                             .attr('src', ic)
+                            .addClass('align-bottom')
                             .addClass('ic');
                         let a = $('<a></a>')
                             .attr('href', url)
                             .attr('target', '_blank')
                             .text(' ' + name)
+                            .addClass('align-bottom')
                             .addClass('text-link')
                             .prepend(img);
                         let col = $('<div></div>')
@@ -103,10 +126,36 @@
             $('body').removeClass('bg-secondary').addClass('bg-dark');
         };
 
+        let init_add_user_site = function(){
+            $('#form-add-user-site').on('submit', function (e) {
+                e.preventDefault();
+                if(!$('#input-site-name').val()){
+                    $.dialog('请填写名称');
+                    return;
+                }
+                if(!$('#input-site-url').val()){
+                    $.dialog('请填写网址');
+                    return;
+                }
+                let form = $(this);
+                $.ajax({
+                    url:form.attr('action'),
+                    type:"POST",
+                    data: form.serialize(),
+                    dataType: "json",
+                }).done(function (res) {
+                    window.location.reload();
+                }).fail(function (xhr, status, errorThrown) {
+                }).always(function (xhr, status) {
+                });
+            });
+        };
+
         $(function () {
             init_bg();
             active_nav_sites();
             get_sites();
+            init_add_user_site();
         });
     </script>
 {% endblock %}
