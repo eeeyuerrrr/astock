@@ -1,4 +1,3 @@
-
 {% extends 'common/base.html' %}
 {% load static %}
 {% block title %}首页{% endblock %}
@@ -37,8 +36,9 @@
                 <form id="form-add-user-site" action="{% url 'nav:api-add-user-site' %}" method="post">
                     {% csrf_token %}
                     <div class="input-group input-group-sm mb-3">
-                        <input id="input-site-name" name="name" type="text"  class="form-control" placeholder="名称如:百度" >
-                        <input id="input-site-url" name="url" type="text" class="form-control" placeholder="网址如:http://www.baidu.com">
+                        <input id="input-site-name" name="name" type="text" class="form-control" placeholder="名称">
+                        <input id="input-site-url" name="url" type="text" class="form-control"
+                               placeholder="网址">
                         <div class="input-group-append">
                             <button id="btn-add-site" class="btn btn-primary" type="submit">
                                 添加
@@ -84,37 +84,44 @@
             });
         };
 
+
+        let get_site_contaner = function (category) {
+            let category_contaners = {
+                'DATAS': $('#div-datas'),
+                'NEWS': $('#div-news'),
+                'OTHERS': $('#div-others'),
+                'PERSONAL': $('#div-personal'),
+            };
+            return category_contaners[category];
+        };
+
+
+        let add_site = function (container, name, url, icon, id) {
+            let ic = icon || "{% static 'common/img/default_favico.ico' %}";
+            let img = $('<img></img>')
+                .attr('src', ic)
+                .addClass('align-bottom')
+                .addClass('ic')
+                .attr('data-id', id);
+            let a = $('<a></a>')
+                .attr('href', url)
+                .attr('target', '_blank')
+                .text(' ' + name)
+                .addClass('align-bottom')
+                .addClass('text-link');
+            let col = $('<div></div>')
+                .addClass('col-md-2')
+                .prepend(img)
+                .append(a);
+            container.append(col)
+        };
+
         let parse_sites = function (sites) {
             if (sites && sites.length > 0) {
-                let ca_site_contaners = {
-                    'DATAS': $('#div-datas'),
-                    'NEWS': $('#div-news'),
-                    'OTHERS': $('#div-others'),
-                    'PERSONAL': $('#div-personal'),
-                };
+
                 $.each(sites, function (i, v) {
                     try {
-                        let name = v.name;
-                        let url = v.url;
-                        let ic = v.icon || "{% static 'common/img/default_favico.ico' %}";
-                        let ca = v.category;
-
-                        let img = $('<img></img>')
-                            .attr('src', ic)
-                            .addClass('align-bottom')
-                            .addClass('ic');
-                        let a = $('<a></a>')
-                            .attr('href', url)
-                            .attr('target', '_blank')
-                            .text(' ' + name)
-                            .addClass('align-bottom')
-                            .addClass('text-link')
-                            .prepend(img);
-                        let col = $('<div></div>')
-                            .addClass('col-md-2')
-                            .append(a);
-                        ca_site_contaners[ca].append(col)
-
+                        add_site(get_site_contaner(v.category), v.name, v.url, v.icon, v.id);
                     } catch (e) {
                         console.log(e);
                     }
@@ -126,36 +133,87 @@
             $('body').removeClass('bg-secondary').addClass('bg-dark');
         };
 
-        let init_add_user_site = function(){
+        let init_add_user_site = function () {
             $('#form-add-user-site').on('submit', function (e) {
                 e.preventDefault();
-                if(!$('#input-site-name').val()){
-                    $.dialog('请填写名称');
+                let name = $('#input-site-name').val();
+                let url = $('#input-site-url').val();
+                if (!name || !url) {
+                    $.dialog('请填写名称和网址');
                     return;
                 }
-                if(!$('#input-site-url').val()){
-                    $.dialog('请填写网址');
-                    return;
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    $('#input-site-url').val('http://' + url);
                 }
                 let form = $(this);
                 $.ajax({
-                    url:form.attr('action'),
-                    type:"POST",
+                    url: form.attr('action'),
+                    type: "POST",
                     data: form.serialize(),
                     dataType: "json",
-                }).done(function (res) {
-                    window.location.reload();
+                }).done(function (site) {
+                    if (site && site.name && site.url) {
+                        add_site(get_site_contaner('PERSONAL'), site.name, site.url, null ,site.id);
+                        $('#input-site-name').val('');
+                        $('#input-site-url').val('');
+                        let d = $.dialog('添加成功！点击名称前的星星图标可删除。');
+                        setTimeout(function(){
+                            d.close();
+                        }, 1400);
+                    }
                 }).fail(function (xhr, status, errorThrown) {
                 }).always(function (xhr, status) {
                 });
             });
         };
 
+        let init_remove_user_site = function(){
+            $('#div-personal').on('click', 'div img', function (e) {
+                e.preventDefault();
+                let id = $(this).attr('data-id');
+                let site_ele = $(this).parent();
+                $.confirm({
+                    title: '提示',
+                    content: '确认要删除？',
+                    buttons: {
+                        ok: {
+                            text: '确认',
+                            btnClass: 'btn-primary',
+                            action: function(){
+                                remove_user_site(id, function(){
+                                    site_ele.remove();
+                                });
+                            }
+                        },
+                        cancel:{
+                            text: '取消',
+                        }
+                    }
+                });
+
+            });
+        };
+
+        let remove_user_site = function(id, cb){
+            $.ajax({
+                    url: "{% url 'nav:api-remove-user-site' %}",
+                    data: {'id':id},
+                    type: "POST",
+                    dataType:"json",
+                }).done(function(r){
+                    if(r.success && cb){
+                        cb();
+                    }
+                });
+        };
+
+
         $(function () {
             init_bg();
             active_nav_sites();
             get_sites();
             init_add_user_site();
+            init_remove_user_site();
         });
     </script>
 {% endblock %}
