@@ -1,5 +1,6 @@
 from django.views.decorators.cache import cache_page
 
+from a_stock.throttles import DownloadThrottle
 from a_stock.utils import print_err
 from datetime import datetime
 
@@ -8,7 +9,7 @@ from django.db.models import Q
 from django.http import StreamingHttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import status, generics
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, throttle_classes
 from rest_framework.exceptions import APIException, ParseError, NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import StaticHTMLRenderer, TemplateHTMLRenderer
@@ -213,6 +214,8 @@ def industry_stocks_corr_analyzation(request, industry_id):
         raise APIException
 
 
+@api_view(('GET',))
+@throttle_classes((DownloadThrottle,))
 def download_stock_data(request, stock_id, days):
     # need login
     if not request.user.is_authenticated:

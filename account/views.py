@@ -5,11 +5,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, throttle_classes
 from rest_framework.exceptions import ValidationError, NotFound, APIException
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 
+from a_stock.throttles import UnsafeMethodThrottle, SendMailThrottle
 from a_stock.utils import gen_user_key, send_html_mail, print_err, validate_mail, gen_user_key_expires, \
     validate_password
 from a_stock.exceptions import OperateError
@@ -97,6 +98,7 @@ def account_activate(request, key):
 
 # ~~~~~~~~~~~~~~~~~~ api ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @api_view(('POST',))
+@throttle_classes((SendMailThrottle,))
 def api_register(request):
     try:
         if request.user.is_authenticated:
@@ -177,6 +179,7 @@ def api_register(request):
 
 
 @api_view(('POST',))
+@throttle_classes((UnsafeMethodThrottle,))
 def api_login(request):
     try:
         u = request.POST['username']
@@ -212,6 +215,7 @@ def api_login(request):
 
 
 @api_view(('POST',))
+@throttle_classes((UnsafeMethodThrottle,))
 def api_logout(request):
     try:
         logout(request)
@@ -222,6 +226,7 @@ def api_logout(request):
 
 
 @api_view(('POST',))
+@throttle_classes((UnsafeMethodThrottle,))
 def api_change_password(request):
     try:
         username = request.POST['username']
@@ -266,6 +271,7 @@ def api_change_password(request):
 
 
 @api_view(('POST',))
+@throttle_classes((SendMailThrottle,))
 def api_reset_pw_user_identify(request):
     try:
         username = request.POST['username']
@@ -313,6 +319,7 @@ def api_reset_pw_user_identify(request):
 
 
 @api_view(('POST',))
+@throttle_classes((UnsafeMethodThrottle,))
 def api_reset_pw(request):
     try:
         username = request.POST['username']

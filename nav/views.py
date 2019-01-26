@@ -1,11 +1,12 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.views.decorators.csrf import ensure_csrf_cookie
-from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.decorators import api_view, renderer_classes, throttle_classes
 from rest_framework.exceptions import NotAuthenticated, APIException
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from a_stock.exceptions import OperateError
+from a_stock.throttles import UnsafeMethodThrottle
 from a_stock.utils import print_err
 from .models import Site
 from .serializers import SiteSerializer
@@ -29,6 +30,7 @@ def api_site_list(request):
 
 
 @api_view(('POST',))
+@throttle_classes((UnsafeMethodThrottle,))
 @ensure_csrf_cookie
 def api_add_user_site(request):
     if not request.user.is_authenticated:
@@ -51,6 +53,7 @@ def api_add_user_site(request):
 
 
 @api_view(('POST',))
+@throttle_classes((UnsafeMethodThrottle,))
 @ensure_csrf_cookie
 def api_remove_user_site(request):
     if not request.user.is_authenticated:

@@ -9,9 +9,13 @@ from django.utils import timezone
 from django.utils.html import strip_tags
 from django.contrib.auth.password_validation import MinimumLengthValidator, NumericPasswordValidator
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def print_err(err):
-    print(repr(err))
+    # print(repr(err))
+    logger.error('[-] {!r}'.format(err))
     traceback.print_tb(err.__traceback__)
 
 

@@ -14,16 +14,26 @@
 
                 {# 指数 #}
         <div class="row bg-dark" style="padding-top: 4.4rem;">
-            <div class="col-2 mx-auto">
-                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '000001' '1' %}">上证指数</a>
-                <p id="p-szzs" class="center">--</p>
-                <p id="pct-szzs" class="center">--</p>
-            </div>
+{#            <div class="col-2 mx-auto">#}
+{#                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '000001' '1' %}">上证指数</a>#}
+{#                <p id="p-szzs" class="center">--</p>#}
+{#                <p id="pct-szzs" class="center">--</p>#}
+{#            </div>#}
 {#            <div class="col-2 mx-auto">#}
 {#                <a class="text-white center" href="{% url 'stock_analyze:page-index-detail' '399001' '2' %}">深圳成指</a>#}
 {#                <p id="p-szcz" class="center">--</p>#}
 {#                <p id="pct-szcz" class="center">--</p>#}
 {#            </div>#}
+            <div class="col-2 mx-auto">
+                <a class="text-white center" href="#">上证指数</a>
+                <p id="p-szzs" class="center">--</p>
+                <p id="pct-szzs" class="center">--</p>
+            </div>
+            <div class="col-2 mx-auto">
+                <a class="text-white center" href="#">深圳成指</a>
+                <p id="p-szcz" class="center">--</p>
+                <p id="pct-szcz" class="center">--</p>
+            </div>
         </div>
 
         <div id="div-industry" class="row"  style="padding-top: 1rem;">
@@ -70,7 +80,7 @@
 
         let get_indexs = function(){
             get_index('000001', '1', '#p-szzs', '#pct-szzs');
-            {#get_index('399001','2','#p-szcz', '#pct-szcz');#}
+            get_index('399001','2','#p-szcz', '#pct-szcz');
         };
 
         let get_industries = function () {

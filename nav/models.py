@@ -20,5 +20,5 @@ class Site(models.Model):
     description = CharField(max_length=100, blank=True)
     category = CharField(max_length=10, choices=CATEGORY_CHOICES, default=OTHERS)
     order = IntegerField(default=100)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sites', null=True, default=None)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sites', blank=True, null=True, default=None)
 
