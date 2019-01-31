@@ -4,13 +4,13 @@ from a_stock.throttles import DownloadThrottle
 from a_stock.utils import print_err
 from datetime import datetime
 
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, renderer_classes, throttle_classes
-from rest_framework.exceptions import APIException, ParseError, NotFound
+from rest_framework.exceptions import APIException, ParseError, NotFound, ValidationError
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.renderers import StaticHTMLRenderer, TemplateHTMLRenderer
 from rest_framework.response import Response
@@ -261,9 +261,25 @@ def stock_beta(request, id):
         beta = stock.beta()
         return Response(dict(result=beta))
     except ObjectDoesNotExist:
-        return Response(dict(result='数据缺失'))
+        raise Http404
     except DataMissingError:
         return Response(dict(result='数据缺失'))
+    except Exception as e:
+        print_err(e)
+        raise APIException
+
+
+@api_view(('GET',))
+def stock_last_deal_data(request, id):
+    try:
+        row = request.GET['row']
+        page = request.GET['page']
+        stock = Stock.objects.get(id=id)
+        return Response(stock.last_deal_data(row, page))
+    except ObjectDoesNotExist:
+        raise ValidationError
+    except KeyError:
+        raise ValidationError
     except Exception as e:
         print_err(e)
         raise APIException

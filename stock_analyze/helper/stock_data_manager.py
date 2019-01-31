@@ -80,7 +80,8 @@ def _get_data_with_cache_db(stock_code, market_code, days, update=True):
             print('[+] cache oldest: {}'.format(cache_oldest_date))
             if start.date() + datetime.timedelta(days=7) < cache_oldest_date.date():
                 e = cache_oldest_date - datetime.timedelta(days=1)
-                _request_and_cache_db(stock_code, market_code, start, e, cache_exclude_dates=(cache_oldest_date.date(),))
+                _request_and_cache_db(stock_code, market_code, start, e,
+                                      cache_exclude_dates=(cache_oldest_date.date(),))
 
     find_cols = {'_id': 0, 'date': 1, 'High': 1, 'Low': 1, 'Open': 1, 'Close': 1, 'Volume': 1, 'Adj Close': 1}
     data = coll.find_between_date(start, end, find_cols)
@@ -90,8 +91,6 @@ def _get_data_with_cache_db(stock_code, market_code, days, update=True):
         date_index.append(d.pop('date'))
         values.append(d)
     return pd.DataFrame(data=values, index=date_index)
-
-
 
 
 def _request_and_cache_db(stock_code, market_code, start, end, cache_exclude_dates=None):
@@ -140,3 +139,10 @@ def industry_stocks_updown_count(enable_cache=False):
         up, down = cs[0], cs[2]
         industries[name] = {'total_value': total_value, 'exchange': exchange, 'up': up, 'down': down}
     return industries
+
+
+def last_deal_data(stock_code, market_code, row, page, enable_cache=False):
+    url = 'http://mdfm.eastmoney.com/EM_UBG_MinuteApi/Js/Get?dtype=all&id={}{}&gtvolume=&sort=' \
+          '&rows={}&page={}'.format(stock_code, market_code, row, page)
+    r = _request(url, enable_cache).text
+    return json.loads(r[r.index('(') + 1: r.rindex(')')])

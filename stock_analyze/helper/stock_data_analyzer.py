@@ -37,8 +37,8 @@ def beta(stock_code, index_code, market_code):
     return '{:.2f}'.format(b)
 
 
-def pv_analyzation(stock_code, market_code):
-    '''计算最近90,30,7交易日的平均收盘价，平均成交量'''
+def volume_mean(stock_code, market_code):
+    '''计算最近90,30,7交易日的平均成交量'''
     _df365 = get_recent_data(stock_code, market_code, 365, update=False)
     if _df365.shape[0] < 90:
         raise DataMissingError
@@ -46,20 +46,16 @@ def pv_analyzation(stock_code, market_code):
     df90 = _df365[:90]
     df30 = _df365[:30]
     df7 = _df365[:7]
-    # 平均值
-    p_mean_90 = df90['Adj Close'].mean()
-    v_mean_90 = df90['Volume'].mean()
-    p_mean_30 = df30['Adj Close'].mean()
+    # 平均成交量
     v_mean_30 = df30['Volume'].mean()
-    p_mean_7 = df7['Adj Close'].mean()
+    v_mean_90 = df90['Volume'].mean()
     v_mean_7 = df7['Volume'].mean()
 
-    row_p_mean = Series([p_mean_90, p_mean_30, p_mean_7]).map(lambda x: '%.2f' % x)
     row_v_mean = Series([v_mean_90, v_mean_30, v_mean_7]).map(lambda x: '{:.2f}'.format(x / 1000000))
 
     return DataFrame(columns=['90日', '30日', '7日'],
-                     index=['平均收盘价', '平均成交量/万手'],
-                     data=[row_p_mean.values, row_v_mean.values])
+                     index=['平均成交量/万手'],
+                     data=[ row_v_mean.values])
 
 
 def stocks_corr_analyzation(days, stock, *compare_stocks):
@@ -91,6 +87,8 @@ def stocks_corr_analyzation(days, stock, *compare_stocks):
     else:
         df = df_compare_stocks_pct.corr()
         return df.applymap(lambda x: '{:.2f}'.format(x))
+
+
 
 # if __name__ == '__main__':
 # t_start = time.time()

@@ -4,7 +4,6 @@ from django.urls import reverse
 import stock_analyze.helper.stock_data_analyzer as sda
 import stock_analyze.helper.stock_data_manager as sdm
 
-
 # ~~~~~~~~~~~~~~~~~~~~~ Stock ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 from stock_analyze.exceptions import DataMissingError
 
@@ -53,7 +52,7 @@ class Stock(models.Model):
         return sdm.get_recent_data(self.code, self.market_code, days)
 
     def pv_analyzation(self):
-        return sda.pv_analyzation(self.code, self.market_code)
+        return sda.volume_mean(self.code, self.market_code)
 
     def corr_with_industry_stocks(self, industry):
         compare_stocks = industry.get_stocks()
@@ -62,6 +61,9 @@ class Stock(models.Model):
     def beta(self):
         index = Stock.objects.get(isindex=True, market_code=self.market_code)
         return sda.beta(self.code, index.code, self.market_code)
+
+    def last_deal_data(self, row, page):
+        return sdm.last_deal_data(self.code, self.market_code, row, page)
 
 
 # ~~~~~~~~~~~~~~~~~ Industry ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

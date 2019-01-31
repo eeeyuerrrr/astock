@@ -15,12 +15,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include, re_path
+from django.views.generic import TemplateView
+
 from .views import redirect_root
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
     path('', redirect_root, name='home'),
+    # path('', TemplateView.as_view(template_name='index.html')), # vue
     path('admin/', admin.site.urls),
     path('stock_analyze/', include('stock_analyze.urls')),
     path('account/', include('account.urls')),

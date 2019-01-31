@@ -42,3 +42,6 @@ let getCookie = function (c_name) {
     }
     return "";
 };
+
+
+

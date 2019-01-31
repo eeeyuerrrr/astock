@@ -36,7 +36,9 @@ urlpatterns = [
     path('api/stocks/cur_price/', views.stock_cur_price,
          name='api-stock-cur-price'),
     path('api/stocks/search/', views.stocks_search, name='api-stocks-search'),
-    path('api/stocks/beta/<id>', views.stock_beta, name='api-stocks-beta'),
+    path('api/stocks/beta/<int:id>', views.stock_beta, name='api-stocks-beta'),
+    path('api/stocks/last_deal_data/<int:id>/', views.stock_last_deal_data,
+         name='last_deal_data'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~ api html ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     path('api/industries/stocks_corr_analyzation/<int:industry_id>', views.industry_stocks_corr_analyzation,

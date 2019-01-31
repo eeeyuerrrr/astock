@@ -17,6 +17,8 @@ import json
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+FRONTEND_DIST_DIR = os.path.join(os.path.join(BASE_DIR, 'frontend'), 'dist')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -47,6 +49,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -60,6 +63,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        # 'DIRS': [FRONTEND_DIST_DIR], # vue frontend
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -138,6 +142,7 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
+    # os.path.join(FRONTEND_DIST_DIR, 'static'), # vue frontend
 )
 
 REST_FRAMEWORK = {
@@ -150,8 +155,8 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/day',
-        'user': '1000/day',
+        'anon': '500/day',
+        'user': '2000/day',
         'download': '100/day',
         'unsafe_method': '200/day',
         'send_mail': '20/day',
@@ -230,4 +235,5 @@ MANGODB = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
+# 调试环境允许跨域请求
+CORS_ORIGIN_ALLOW_ALL = DEBUG
