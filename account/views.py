@@ -132,6 +132,7 @@ def api_register(request):
             if user.is_active:
                 raise OperateError(detail='该邮箱已注册过')
             else:
+                # 注册过但是未激活的可重新注册
                 user_profile = UserProfile.objects.get(user=user)
                 user_profile.delete()
                 user.delete()

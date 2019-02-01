@@ -2,23 +2,27 @@
 import datetime
 
 import pymongo
-
+import weakref
 from django.conf import settings
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError, BulkWriteError
 from a_stock.utils import print_err
-from stock_analyze.helper.utils import get_stock_request_code, log
+from stock_analyze.helper.utils import get_stock_request_code
+
 
 QUERY_RESULT_BATCH_SIZE = 400
 
-stock_collections = {}
+stock_collections = weakref.WeakValueDictionary()
 
 
 def get_stock_collection(stock_code, market_code):
     coll_name = get_stock_request_code(stock_code, market_code)
     if not coll_name in stock_collections:
-        stock_collections[coll_name] = StockDataCollection(coll_name)
-    return stock_collections[coll_name]
+        s = StockDataCollection(coll_name)
+        stock_collections[coll_name] = s
+    else:
+        s = stock_collections[coll_name]
+    return s
 
 
 class Singleton(type):
