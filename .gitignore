@@ -6,6 +6,7 @@
 *.pyc
 *.cpython-36.pyc
 /a_stock/account.txt
+/a_stock/settings.py
 /nav/migrations/
 /frontend/node_modules/
 /frontend/
