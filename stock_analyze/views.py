@@ -1,4 +1,3 @@
-from django.views.decorators.cache import cache_page
 
 from a_stock.throttles import DownloadThrottle
 from a_stock.utils import print_err

@@ -1,8 +1,13 @@
 from django.urls import path
+from django.views.decorators.cache import cache_page
 
 from . import views
 
 app_name = 'stock_analyze'
+
+CACHE_TIME_LONG = 60 * 24
+CACHE_TIME_MEDIUM = 60 * 10
+CACHE_TIME_SHORT = 60 * 1
 
 urlpatterns = [
     # ~~~~~~~~~~~~~~~~~~~~~ page html~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -21,33 +26,33 @@ urlpatterns = [
 
     # ~~~~~~~~~~~~~~~~~~~~~~ api json ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # ex: /stock_analyze/api/industries
-    path('api/industries/', views.IndustryList.as_view(),
+    path('api/industries/', cache_page(CACHE_TIME_LONG)(views.IndustryList.as_view()),
          name='api-industry-list'),
-    path('api/industries/<int:pk>/', views.IndustryDetail.as_view(),
+    path('api/industries/<int:pk>/', cache_page(CACHE_TIME_LONG)(views.IndustryDetail.as_view()),
          name='api-industry-detail'),
-    path('api/industries/stocks_updown/', views.all_industry_stocks_updown,
+    path('api/industries/stocks_updown/', cache_page(CACHE_TIME_SHORT)(views.all_industry_stocks_updown),
          name='api-all-stocks-updown'),
-    path('api/industries/stocks_updown/<int:industry_id>/', views.industry_stocks_updown,
+    path('api/industries/stocks_updown/<int:industry_id>/', cache_page(CACHE_TIME_SHORT)(views.industry_stocks_updown),
          name='api-stocks-updown'),
-    path('api/stocks/<int:pk>/', views.StockDetail.as_view(),
+    path('api/stocks/<int:pk>/', cache_page(CACHE_TIME_SHORT)(views.StockDetail.as_view()),
          name='api-stock-detail'),
     path('api/stocks/cur_price_realtime/<stock_code>/<market_code>/', views.stock_cur_price_realtime,
          name='api-stock-cur-price-realtime'),
-    path('api/stocks/cur_price/', views.stock_cur_price,
+    path('api/stocks/cur_price/', cache_page(CACHE_TIME_SHORT)(views.stock_cur_price),
          name='api-stock-cur-price'),
-    path('api/stocks/search/', views.stocks_search, name='api-stocks-search'),
-    path('api/stocks/beta/<int:id>', views.stock_beta, name='api-stocks-beta'),
-    path('api/stocks/last_deal_data/<int:id>/', views.stock_last_deal_data,
+    path('api/stocks/search/', cache_page(CACHE_TIME_LONG)(views.stocks_search), name='api-stocks-search'),
+    path('api/stocks/beta/<int:id>', cache_page(CACHE_TIME_LONG)(views.stock_beta), name='api-stocks-beta'),
+    path('api/stocks/last_deal_data/<int:id>/', cache_page(CACHE_TIME_SHORT)(views.stock_last_deal_data),
          name='last_deal_data'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~ api html ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    path('api/industries/stocks_corr_analyzation/<int:industry_id>', views.industry_stocks_corr_analyzation,
+    path('api/industries/stocks_corr_analyzation/<int:industry_id>', cache_page(CACHE_TIME_LONG)(views.industry_stocks_corr_analyzation),
          name='industry_stocks_corr_analyzation'),
-    path('api/stocks/recent_data/<int:stock_id>/<int:days>', views.stock_recent_data,
+    path('api/stocks/recent_data/<int:stock_id>/<int:days>', cache_page(CACHE_TIME_LONG)(views.stock_recent_data),
          name='stock_recent_data'),
-    path('api/stocks/stock_pv_analyzation/<int:stock_id>', views.stock_pv_analyzation,
+    path('api/stocks/stock_pv_analyzation/<int:stock_id>', cache_page(CACHE_TIME_LONG)(views.stock_pv_analyzation),
          name='stock_pv_analyzation'),
-    path('api/stocks/stocks_corr_analyzation/<int:stock_id>', views.stocks_corr_analyzation,
+    path('api/stocks/stocks_corr_analyzation/<int:stock_id>', cache_page(CACHE_TIME_LONG)(views.stocks_corr_analyzation),
          name='stocks_corr_analyzation'),
 
     # ~~~~~~~~~~~~~~~~~~~~~~~~~ api file ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -37,6 +37,9 @@ def api_add_user_site(request):
         raise NotAuthenticated(detail='请先登录')
 
     try:
+        if Site.objects.filter(owner=request.user).count() > 1000:
+            raise OperateError('用户自定义网址数量已达上限')
+
         ser = SiteSerializer(data=dict(name=request.data['name'], url=request.data['url'],
                                        category=Site.PERSONAL, owner=request.user.id))
         if ser.is_valid():
