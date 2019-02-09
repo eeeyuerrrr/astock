@@ -1,5 +1,7 @@
 {% extends 'common/base.html' %}
 
+{% block subtitle %}股票数据{% endblock %}
+
 {% block style %}
     <style>
         main {
@@ -13,23 +15,23 @@
     <div class="container-fluid">
         <!-- 名称，股票代码，价格，涨跌幅，涨跌百分比 -->
         <div class="row bg-dark" style="padding-top: 1rem;">
-            <div class="col-2 mx-auto">
+            <div class="col-md-2">
                 <h4 id="h-stock-name" class="text-white center">--</h4>
                 <h6 id="h-stock-code" class="text-white center">--</h6>
             </div>
-            <div class="col-1 mx-auto">
+            <div class="col-md-1">
                 <p class="text-white center">当前价：</p>
                 <p id="p-stock-price" class="center">--</p>
             </div>
-            <div class="col-1 mx-auto">
+            <div class="col-md-1">
                 <p class="text-white center">涨跌幅：</p>
                 <p id="p-stock-pc-change" class="center">--</p>
             </div>
-            <div class="col-1 mx-auto">
+            <div class="col-md-1">
                 <p class="text-white center">涨跌比：</p>
                 <p id="p-stock-pc-change-pct" class="center">--</p>
             </div>
-            <div class="col-2 mx-auto">
+            <div class="col-md-3">
                 <p class="text-white">更新时间：</p>
                 <p id="p-pc-update-time" class="text-white center">--</p>
             </div>
@@ -58,7 +60,7 @@
             <div id="div-deal-data-table" class="col-md-6"></div>
         </div>
         <!-- 条形图 -->
-        <div id="div-deal-data-barchar" class="row bg-secondary" style="padding: 0.2rem;">
+        <div id="div-deal-data-barchar" class="row bg-dark" style="padding: 0.2rem;">
             <div class="col-lg-4">
                 <p class="text-white">总成交</p>
                 <div id="dealdata-total-barchar"></div>
@@ -72,7 +74,7 @@
                 <div id="dealdata-buy-barchar"></div>
             </div>
         </div>
-        <div id="div-dealdata-together" class="row bg-secondary"></div>
+        <div id="div-dealdata-together" class="row bg-dark"></div>
 
         <!-- 最近90天，30天，7天的平均价格，成交量，价量相关性 -->
         <div class="row bg-dark" style="margin-top: 0.2rem;padding-top: 2rem;">
