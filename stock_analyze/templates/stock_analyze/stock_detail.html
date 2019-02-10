@@ -56,9 +56,9 @@
                 <h6 class="text-white center">最新交易明细统计</h6>
             </div>
         </div>
-        <div class="row bg-dark">
-            <div id="div-deal-data-table" class="col-md-6"></div>
-        </div>
+{#        <div class="row bg-dark">#}
+            <div id="div-deal-data-table" class="row bg-dark "></div>
+{#        </div>#}
         <!-- 条形图 -->
         <div id="div-deal-data-barchar" class="row bg-dark" style="padding: 0.2rem;">
             <div class="col-lg-4">
@@ -79,7 +79,7 @@
         <!-- 最近90天，30天，7天的平均价格，成交量，价量相关性 -->
         <div class="row bg-dark" style="margin-top: 0.2rem;padding-top: 2rem;">
             <div class="col">
-                <h6 class="text-white center">近期该个股的平均价格，成交量</h6>
+                <h6 class="text-white center">近期该个股的平均成交量</h6>
             </div>
         </div>
         <div class="row bg-dark">
@@ -388,17 +388,20 @@
                 return parseFloat(b) - parseFloat(a);
             });
             let table = $('<table></table>')
-                .addClass('table table-striped table-dark')
-                .css({'text-align': 'right'});
+                .addClass('table table-striped table-dark col-5')
+                .css({
+                    'text-align': 'right',
+                    'font-size':'0.95rem',
+                });
             ;
 
             let thead = $('<thead></thead>');
             let thead_tr = $('<tr></tr>');
             thead_tr.append('<th>成交价</th>');
-            thead_tr.append('<th>成交量/手</th>');
-            thead_tr.append('<th class="text-success">内盘/手</th>');
-            thead_tr.append('<th class="text-danger">外盘/手</th>');
-            thead_tr.append('<th>中性/手</th>');
+            thead_tr.append('<th>成交量</th>');
+            thead_tr.append('<th class="text-success">内盘</th>');
+            thead_tr.append('<th class="text-danger">外盘</th>');
+            thead_tr.append('<th>中性</th>');
             thead.append(thead_tr);
 
 
