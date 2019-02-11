@@ -145,9 +145,9 @@
                 .append(a);
             ul.append(li);
         });
-        let container = $('<div></div>').addClass('container');
+        let container = $('<div></div>').addClass('container').css('padding-top', '0.4rem');
         let row = $('<div></div>').addClass('row');
-        let col = $('<div></div>').addClass('col').css('margin-top', '0.1rem');
+        let col = $('<div></div>').addClass('col');
         col.append(ul);
         row.append(col);
         container.append(row);

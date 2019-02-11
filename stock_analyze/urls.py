@@ -40,7 +40,7 @@ urlpatterns = [
          name='api-stock-cur-price-realtime'),
     path('api/stocks/cur_price/', cache_page(CACHE_TIME_SHORT)(views.stock_cur_price),
          name='api-stock-cur-price'),
-    path('api/stocks/search/', cache_page(CACHE_TIME_LONG)(views.stocks_search), name='api-stocks-search'),
+    path('api/stocks/search/', views.stocks_search, name='api-stocks-search'),
     path('api/stocks/beta/<int:id>', cache_page(CACHE_TIME_LONG)(views.stock_beta), name='api-stocks-beta'),
     path('api/stocks/last_deal_data/<int:id>/', cache_page(CACHE_TIME_SHORT)(views.stock_last_deal_data),
          name='last_deal_data'),
